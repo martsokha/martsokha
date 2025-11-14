@@ -1,0 +1,52 @@
+# OS
+Thumbs.db
+.DS_Store
+
+# Editors
+.vs/
+.vscode/
+.idea/
+.fleet/
+.zed/
+
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+
+# Node dependencies
+node_modules
+
+# Generated files
+*.pem
+*.backup
+coverage/
+*.lcov
+
+# Build output
+dist/
+build/
+output/
+
+# Environment files
+.env
+.env*
+!.env.example
+
+# Logs
+logs/
+*.log
+*.log*
+
+# Backup and temporary files
+*.bak
+*.backup
+*.tmp
+tmp/
+temp/
+
+# Other
+.ignore*/
+LLM.md
