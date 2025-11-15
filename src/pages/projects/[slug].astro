@@ -34,45 +34,47 @@ const metaInfo = {
 	hideNavigation={true}
 	{...metaInfo}
 >
-	<article class="container mx-auto px-4 py-16 max-w-4xl">
+	<article class="container mx-auto px-4 py-8 md:py-12 lg:py-16 max-w-4xl">
 		<!-- Back Link and Meta -->
-		<div class="mb-8 pb-6 border-b border-neutral-200 dark:border-neutral-800">
-			<a
-				href="/projects"
-				class="inline-flex items-center text-base text-black dark:text-white hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors font-medium mb-4"
-			>
-				<ArrowLeft client:load class="w-5 h-5 mr-3" />
-				Back to Projects
-			</a>
+		<div class="mb-6 md:mb-8 pb-4 md:pb-6 border-b border-neutral-200 dark:border-neutral-800">
+			<div class="flex items-center justify-between">
+				<a
+					href="/projects"
+					class="inline-flex items-center text-base text-black dark:text-white hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors font-medium"
+				>
+					<ArrowLeft client:load class="w-5 h-5 mr-3" />
+					Back to Projects
+				</a>
 
-			<!-- Project Meta -->
-			<div class="flex items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400 font-medium">
-				<time datetime={project.data.publishedAt.toISOString()}>
-					{publishedDate}
-				</time>
-				<span>•</span>
-				<span class="capitalize">{project.data.status}</span>
+				<!-- Project Meta -->
+				<div class="flex items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400 font-medium">
+					<time datetime={project.data.publishedAt.toISOString()}>
+						{publishedDate}
+					</time>
+					<span>•</span>
+					<span class="capitalize">{project.data.status}</span>
+				</div>
 			</div>
 		</div>
 
 		<!-- Project Title and Links -->
-		<header class="mb-8">
-			<div class="flex items-start justify-between mb-4">
+		<header class="mb-6 md:mb-8">
+			<div class="flex items-center justify-between mb-4">
 				<h1 class="text-4xl md:text-5xl font-bold text-black dark:text-white leading-tight flex-1 pr-8">
 					{project.data.title}
 				</h1>
 
 				<!-- Project Links -->
 				{(project.data.github || project.data.demo) && (
-					<div class="flex flex-wrap gap-3 flex-shrink-0">
+					<div class="flex items-center gap-3 shrink-0">
 						{project.data.github && (
 							<a
 								href={project.data.github}
 								target="_blank"
 								rel="noopener noreferrer"
-								class="inline-flex items-center text-sm px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-black dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors font-medium"
+								class="inline-flex items-center justify-center h-8 px-3 text-xs font-medium rounded-md border border-neutral-300 dark:border-neutral-700 text-black dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors gap-2"
 							>
-								<Github client:load class="w-4 h-4 mr-2" />
+								<Github client:load class="w-4 h-4" />
 								View Code
 							</a>
 						)}
@@ -81,9 +83,9 @@ const metaInfo = {
 								href={project.data.demo}
 								target="_blank"
 								rel="noopener noreferrer"
-								class="inline-flex items-center text-sm px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-black dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors font-medium"
+								class="inline-flex items-center justify-center h-8 px-3 text-xs font-medium rounded-md border border-neutral-300 dark:border-neutral-700 text-black dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors gap-2"
 							>
-								<ExternalLink client:load class="w-4 h-4 mr-2" />
+								<ExternalLink client:load class="w-4 h-4" />
 								Live Demo
 							</a>
 						)}
@@ -96,13 +98,13 @@ const metaInfo = {
 		</header>
 
 		<!-- Project Content -->
-		<div class="prose prose-neutral dark:prose-invert prose-lg max-w-none leading-relaxed mb-16">
+		<div class="prose prose-neutral dark:prose-invert prose-lg max-w-none leading-relaxed mb-12 md:mb-16">
 			<Content />
 		</div>
 
 		<!-- Tags at the bottom -->
 		{project.data.tags && project.data.tags.length > 0 && (
-			<div class="border-t border-neutral-200 dark:border-neutral-800 pt-8">
+			<div class="border-t border-neutral-200 dark:border-neutral-800 pt-6 md:pt-8">
 				<div class="flex flex-wrap gap-2">
 					{project.data.tags.map((tag: string) => (
 						<Badge variant="outline" class="text-base px-4 py-2 bg-neutral-50 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">

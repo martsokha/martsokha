@@ -51,37 +51,39 @@ const shareText = encodeURIComponent(post.data.title);
 	hideNavigation={true}
 	{...metaInfo}
 >
-	<article class="container mx-auto px-4 py-16 max-w-4xl">
+	<article class="container mx-auto px-4 py-8 md:py-12 lg:py-16 max-w-4xl">
 		<!-- Back Link and Meta -->
-		<div class="mb-8 pb-6 border-b border-neutral-200 dark:border-neutral-800">
-			<a
-				href="/blog"
-				class="inline-flex items-center text-base text-black dark:text-white hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors font-medium mb-4"
-			>
-				<ArrowLeft client:load class="w-5 h-5 mr-3" />
-				Back to Writing
-			</a>
+		<div class="mb-6 md:mb-8 pb-4 md:pb-6 border-b border-neutral-200 dark:border-neutral-800">
+			<div class="flex items-center justify-between">
+				<a
+					href="/blog"
+					class="inline-flex items-center text-base text-black dark:text-white hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors font-medium"
+				>
+					<ArrowLeft client:load class="w-5 h-5 mr-3" />
+					Back to Writing
+				</a>
 
-			<!-- Post Meta -->
-			<div class="flex items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400 font-medium">
-				{post.data.category && (
-					<>
-						<Badge variant="default" class="bg-black dark:bg-white text-white dark:text-black text-sm px-3 py-1">
-							{post.data.category}
-						</Badge>
-						<span>•</span>
-					</>
-				)}
-				<time datetime={post.data.publishedAt.toISOString()}>
-					{publishedDate}
-				</time>
-				<span>•</span>
-				<span>{readingTime} min read</span>
+				<!-- Post Meta -->
+				<div class="flex items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400 font-medium">
+					{post.data.category && (
+						<>
+							<Badge variant="default" class="bg-black dark:bg-white text-white dark:text-black text-sm px-3 py-1">
+								{post.data.category}
+							</Badge>
+							<span>•</span>
+						</>
+					)}
+					<time datetime={post.data.publishedAt.toISOString()}>
+						{publishedDate}
+					</time>
+					<span>•</span>
+					<span>{readingTime} min read</span>
+				</div>
 			</div>
 		</div>
 
 		<!-- Title and Share -->
-		<header class="mb-8 flex items-start justify-between">
+		<header class="mb-6 md:mb-8 flex items-center justify-between">
 			<h1 class="text-4xl md:text-5xl font-bold text-black dark:text-white leading-tight flex-1 pr-8">
 				{post.data.title}
 			</h1>
@@ -111,20 +113,20 @@ const shareText = encodeURIComponent(post.data.title);
 		</header>
 
 		<!-- Description -->
-		<div class="mb-12">
+		<div class="mb-8 md:mb-12">
 			<p class="text-xl text-neutral-700 dark:text-neutral-300 leading-relaxed">
 				{post.data.description}
 			</p>
 		</div>
 
 		<!-- Post Content -->
-		<div class="prose prose-neutral dark:prose-invert prose-xl max-w-none leading-relaxed mb-16">
+		<div class="prose prose-neutral dark:prose-invert prose-xl max-w-none leading-relaxed mb-12 md:mb-16">
 			<Content />
 		</div>
 
 		<!-- Tags -->
 		{post.data.tags && post.data.tags.length > 0 && (
-			<div class="mb-12 pb-8 border-b border-neutral-200 dark:border-neutral-800">
+			<div class="mb-8 md:mb-12 pb-6 md:pb-8 border-b border-neutral-200 dark:border-neutral-800">
 				<div class="flex flex-wrap gap-2">
 					{post.data.tags.map((tag: string) => (
 						<Badge variant="outline" class="text-base px-4 py-2 bg-neutral-50 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
