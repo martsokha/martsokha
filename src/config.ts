@@ -23,3 +23,12 @@ export const SITE_URL = "https://martsokha.com";
 
 /** Default Open Graph image path (relative to public directory) */
 export const DEFAULT_OG_IMAGE = "/og-image.jpg";
+
+/** Social media links configuration */
+export const SOCIAL_LINKS = {
+  instagram: "https://instagram.com/martsokha",
+  bluesky: "https://bsky.app/profile/martsokha.com",
+  linkedin: "https://linkedin.com/in/martsokha",
+  github: "https://github.com/martsokha",
+  email: "hello@martsokha.com",
+} as const;

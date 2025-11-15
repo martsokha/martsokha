@@ -1,7 +1,7 @@
 ---
 title: "E-commerce Dashboard"
 description: "A comprehensive admin dashboard for managing online stores, featuring real-time analytics, inventory management, and order processing."
-tags: ["React", "TypeScript", "Node.js", "PostgreSQL", "Redis", "Chart.js", "Tailwind CSS"]
+tags: ["React", "TypeScript", "Node.js", "PostgreSQL", "Redis", "Chart.js", "TailwindCSS"]
 github: "https://github.com/martsokha/ecommerce-dashboard"
 demo: "https://dashboard-demo.example.com"
 status: "Completed"

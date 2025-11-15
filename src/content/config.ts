@@ -1,4 +1,5 @@
 import { defineCollection, z } from "astro:content";
+import { validateSingleWordTags } from "./validations";
 
 const posts = defineCollection({
   type: "content",
@@ -8,7 +9,9 @@ const posts = defineCollection({
     publishedAt: z.coerce.date(),
     updatedAt: z.coerce.date().optional(),
     category: z.string().optional(),
-    tags: z.array(z.string()).optional(),
+    tags: z.array(z.string()).optional().refine(validateSingleWordTags, {
+      message: "All tags must be single words without spaces or hyphens",
+    }),
     draft: z.boolean().default(false),
   }),
 });

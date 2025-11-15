@@ -1,113 +1,90 @@
 ---
 import { Layout } from "@/layouts";
 import { getCollection } from "astro:content";
-import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-vue-next";
+import { Badge } from "@/components/ui/badge";
 
 // Get all blog posts
 const allPosts = await getCollection("posts");
 const posts = allPosts
 	.sort((a, b) => new Date(b.data.publishedAt).getTime() - new Date(a.data.publishedAt).getTime())
-	.map(post => ({
-		...post,
-		formattedDate: new Date(post.data.publishedAt).toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: 'long',
-			day: 'numeric'
-		}),
-		formattedUpdatedDate: post.data.updatedAt
-			? new Date(post.data.updatedAt).toLocaleDateString('en-US', {
+	.map(post => {
+		// Calculate reading time (assuming 200 words per minute)
+		const wordCount = post.body.split(/\s+/).length;
+		const readingTime = Math.max(1, Math.ceil(wordCount / 200));
+
+		return {
+			...post,
+			formattedDate: new Date(post.data.publishedAt).toLocaleDateString('en-US', {
 				year: 'numeric',
 				month: 'long',
 				day: 'numeric'
-			})
-			: null,
-		hasUpdate: post.data.updatedAt && post.data.updatedAt !== post.data.publishedAt
-	}));
+			}).toUpperCase(),
+			readingTime
+		};
+	});
 
-const pageTitle = "Blog";
+const pageTitle = "Writing";
 const pageDescription = "Thoughts on software engineering, design, and technology.";
 ---
 
 <Layout title={pageTitle} description={pageDescription}>
 	<div class="container mx-auto px-4 py-16 max-w-4xl">
-		<!-- Page Header -->
-		<header class="mb-20">
-			<h1 class="text-5xl lg:text-6xl font-bold text-black dark:text-white mb-6 leading-tight">
-				Blog
-			</h1>
-			<p class="text-xl text-neutral-800 dark:text-neutral-100 leading-relaxed font-light">
-				{pageDescription}
-			</p>
-		</header>
-
 		{posts.length === 0 ? (
 			<div class="text-center py-24">
-				<div class="text-neutral-600 dark:text-neutral-300 text-xl">
+				<div class="text-neutral-600 dark:text-neutral-400 text-xl">
 					No posts yet. Check back soon!
 				</div>
 			</div>
 		) : (
-			<div class="space-y-16">
-				{posts.map((post) => (
-					<article class="group">
+			<div class="divide-y divide-neutral-200 dark:divide-neutral-800">
+				{posts.map((post, index) => (
+					<article class={`group ${index === 0 ? 'pb-12' : 'py-12'}`}>
 						<a href={`/blog/${post.id}`} class="block">
-							<div class="transition-all duration-300 cursor-pointer p-8 rounded-lg border border-transparent hover:border-neutral-300 dark:hover:border-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-950">
-								<div class="flex flex-col space-y-6">
-									<!-- Title -->
-									<h2 class="text-3xl font-bold text-black dark:text-white group-hover:text-neutral-700 dark:group-hover:text-neutral-200 transition-colors leading-tight">
+							<div class="transition-all duration-300 cursor-pointer">
+								<!-- Meta information (date, category, and reading time) -->
+								<div class="flex items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400 mb-4 font-medium">
+									<time datetime={post.data.publishedAt.toISOString()}>
+										{post.formattedDate}
+									</time>
+									{post.data.category && (
+										<>
+											<span>•</span>
+											<span class="capitalize">{post.data.category}</span>
+										</>
+									)}
+									<span>•</span>
+									<span>{post.readingTime} min read</span>
+								</div>
+
+								<!-- Title and Read Button -->
+								<div class="flex items-start justify-between mb-4">
+									<h2 class="text-3xl md:text-4xl font-bold text-black dark:text-white group-hover:text-neutral-700 dark:group-hover:text-neutral-300 transition-colors leading-tight flex-1 pr-8">
 										{post.data.title}
 									</h2>
 
-									<!-- Description -->
-									<p class="text-lg text-neutral-800 dark:text-neutral-100 leading-relaxed">
-										{post.data.description}
-									</p>
-
-									<!-- Tags and Category -->
-									{(post.data.category || (post.data.tags && post.data.tags.length > 0)) && (
-										<div class="flex flex-wrap gap-2">
-											{post.data.category && (
-												<Badge client:load variant="default" class="text-sm px-3 py-1.5">
-													{post.data.category}
-												</Badge>
-											)}
-											{post.data.tags && post.data.tags.length > 0 && (
-												post.data.tags.slice(0, 3).map((tag: string) => (
-													<Badge client:load variant="secondary" class="text-sm px-3 py-1.5">
-														{tag}
-													</Badge>
-												))
-											)}
-											{post.data.tags && post.data.tags.length > 3 && (
-												<Badge client:load variant="outline" class="text-sm px-3 py-1.5">
-													+{post.data.tags.length - 3}
-												</Badge>
-											)}
-										</div>
-									)}
-
-									<!-- Meta -->
-									<div class="flex items-center justify-between pt-4">
-										<div class="flex items-center gap-3 text-base text-neutral-600 dark:text-neutral-300">
-											<time datetime={post.data.publishedAt.toISOString()} class="font-medium">
-												{post.formattedDate}
-											</time>
-											{post.hasUpdate && (
-												<>
-													<span class="text-neutral-400 dark:text-neutral-500">•</span>
-													<span class="text-neutral-700 dark:text-neutral-200">Updated {post.formattedUpdatedDate}</span>
-												</>
-											)}
-										</div>
-
-										<!-- Read more indicator -->
-										<div class="flex items-center text-black dark:text-white group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
-											<span class="text-base font-semibold">Read more</span>
-											<ArrowRight client:load class="ml-3 w-5 h-5 transition-transform group-hover:translate-x-1" />
-										</div>
+									<!-- Read Button -->
+									<div class="flex items-center text-black dark:text-white group-hover:text-neutral-600 dark:group-hover:text-neutral-400 transition-colors flex-shrink-0">
+										<span class="text-base font-semibold">Read</span>
+										<ArrowRight client:load class="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
 									</div>
 								</div>
+
+								<!-- Description -->
+								<p class="text-lg text-neutral-600 dark:text-neutral-400 leading-relaxed mb-6">
+									{post.data.description}
+								</p>
+
+								<!-- Tags at the bottom -->
+								{post.data.tags && post.data.tags.length > 0 && (
+									<div class="flex flex-wrap gap-2">
+										{post.data.tags.map((tag: string) => (
+											<Badge variant="outline" class="text-sm px-3 py-1 bg-neutral-50 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800">
+												#{tag}
+											</Badge>
+										))}
+									</div>
+								)}
 							</div>
 						</a>
 					</article>

@@ -1,7 +1,7 @@
 ---
 title: "Personal Website"
 description: "A modern, responsive personal website built with Astro, featuring a blog, project showcase, and optimized for performance and SEO."
-tags: ["Astro", "TypeScript", "Tailwind CSS", "MDX", "Vue.js"]
+tags: ["Astro", "TypeScript", "TailwindCSS", "MDX", "Vue.js"]
 github: "https://github.com/martsokha/martsokha"
 demo: "https://martsokha.com"
 status: "Active"

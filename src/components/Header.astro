@@ -1,86 +1,36 @@
 ---
-import ThemeToggle from "./ThemeToggle.vue";
-import { Menu } from "lucide-vue-next";
+import Socials from "./Socials.astro";
+import Avatar from "./Avatar.vue";
 
-const currentPath = Astro.url.pathname;
-
-const navItems = [
-	{ href: "/", label: "Home" },
-	{ href: "/blog", label: "Blog" },
-	{ href: "/projects", label: "Projects" },
-];
-
-function isActive(href: string, current: string): boolean {
-	if (href === "/") return current === "/";
-	return current.startsWith(href);
-}
 ---
 
-<header class="border-b border-neutral-300 dark:border-neutral-200 py-6">
+<header class="bg-neutral-50 dark:bg-neutral-950 py-8">
 	<div class="container mx-auto px-4 max-w-4xl">
 		<div class="flex items-center justify-between">
-			<a
-				href="/"
-				class="text-xl font-bold text-black dark:text-white hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
-			>
-				Oleh Martsokha
-			</a>
+			<!-- Left side: Avatar + Name + Title -->
+			<div class="flex items-center gap-4 lg:gap-6">
+				<Avatar
+					client:load
+					src="/avatar.jpg"
+					alt="Oleh Martsokha"
+					fallbackText="OM"
+					size="size-12 sm:size-16"
+				/>
 
-			<nav class="hidden md:flex items-center space-x-8">
-				{navItems.map((item) => (
-					<a
-						href={item.href}
-						class={`text-base transition-colors ${
-							isActive(item.href, currentPath)
-								? "text-black dark:text-white font-semibold"
-								: "text-neutral-700 dark:text-neutral-200 hover:text-black dark:hover:text-white"
-						}`}
-					>
-						{item.label}
-					</a>
-				))}
-				<ThemeToggle client:load />
-			</nav>
+				<div class="flex flex-col min-w-0 flex-1">
+					<h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100 truncate">
+						Oleh Martsokha
+					</h1>
+					<p class="text-sm sm:text-base text-neutral-700 dark:text-neutral-300 truncate">
+						Software Engineer & Creator
+					</p>
+				</div>
+			</div>
 
-			<!-- Mobile menu button -->
-			<div class="md:hidden">
-				<button
-					id="mobile-menu-btn"
-					class="text-black dark:text-white p-2 hover:bg-neutral-100 dark:hover:bg-neutral-900 rounded-md transition-colors"
-					aria-label="Toggle menu"
-				>
-					<Menu client:load class="w-5 h-5" />
-				</button>
+			<!-- Right side: Social links -->
+			<div class="flex items-center flex-shrink-0">
+				<Socials variant="compact" showEmail={false} />
 			</div>
 		</div>
-
-		<!-- Mobile navigation -->
-		<nav id="mobile-menu" class="hidden mt-6 pt-6 border-t border-neutral-300 dark:border-neutral-200 md:hidden">
-			{navItems.map((item) => (
-				<a
-					href={item.href}
-					class={`block py-3 text-base transition-colors ${
-						isActive(item.href, currentPath)
-							? "text-black dark:text-white font-semibold"
-							: "text-neutral-700 dark:text-neutral-200 hover:text-black dark:hover:text-white"
-					}`}
-				>
-					{item.label}
-				</a>
-			))}
-		</nav>
 	</div>
 </header>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-	const btn = document.getElementById("mobile-menu-btn");
-	const menu = document.getElementById("mobile-menu");
-
-	if (btn && menu) {
-		btn.addEventListener("click", () => {
-			menu.classList.toggle("hidden");
-		});
-	}
-});
-</script>

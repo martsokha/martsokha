@@ -2,6 +2,7 @@
 import { BUILD_VERSION, DEFAULT_DESCRIPTION, DEFAULT_TITLE, DEFAULT_AUTHOR, DEFAULT_OG_IMAGE } from "@/config";
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
+import Navigation from "@/components/Navigation.astro";
 import MinLayout from "@/layouts/MinLayout.astro";
 import Umami from "@/layouts/Umami.astro";
 
@@ -36,6 +37,8 @@ export interface Props {
 	hideHeader?: boolean;
 	/** Whether to hide the site footer */
 	hideFooter?: boolean;
+	/** Whether to hide the site navigation */
+	hideNavigation?: boolean;
 }
 
 const {
@@ -51,6 +54,7 @@ const {
 	keywords,
 	hideHeader = false,
 	hideFooter = false,
+	hideNavigation = false,
 } = Astro.props;
 ---
 
@@ -73,6 +77,12 @@ const {
 			<header role="banner" class="shrink-0">
 				<Header />
 			</header>
+		)}
+
+		{!hideHeader && !hideNavigation && (
+			<nav role="navigation" class="shrink-0">
+				<Navigation />
+			</nav>
 		)}
 
 		<main id="main-content" role="main" class="flex-1 w-full" tabindex="-1">

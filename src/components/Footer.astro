@@ -1,51 +1,20 @@
 ---
-import { Github, Linkedin, Mail, Rss } from 'lucide-vue-next';
+import ThemeSwitch from "./ThemeSwitch.vue";
 
 const currentYear = new Date().getFullYear();
 ---
 
-<footer class="border-t border-neutral-300 dark:border-neutral-200 py-16">
+<footer class="bg-neutral-50 dark:bg-neutral-950 border-t border-neutral-300 dark:border-neutral-800 py-8">
 	<div class="container mx-auto px-4 max-w-4xl">
-		<div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-6 md:space-y-0">
+		<div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
 			<!-- Copyright -->
-			<div class="text-base text-neutral-700 dark:text-neutral-200 order-2 md:order-1 text-center md:text-left font-medium">
-				© {currentYear} Oleh Martsokha. All rights reserved.
+			<div class="text-base text-neutral-500 dark:text-neutral-500 text-center md:text-left">
+				© {currentYear} Oleh Martsokha.
 			</div>
 
-			<!-- Social Links -->
-			<div class="flex items-center justify-center md:justify-end space-x-4 order-1 md:order-2">
-				<a
-					href="/rss.xml"
-					class="p-3 text-neutral-700 dark:text-neutral-200 hover:text-black dark:hover:text-white transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-900"
-					aria-label="RSS Feed"
-				>
-					<Rss client:load class="w-6 h-6" />
-				</a>
-				<a
-					href="mailto:hello@martsokha.com"
-					class="p-3 text-neutral-700 dark:text-neutral-200 hover:text-black dark:hover:text-white transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-900"
-					aria-label="Email"
-				>
-					<Mail client:load class="w-6 h-6" />
-				</a>
-				<a
-					href="https://github.com/martsokha"
-					target="_blank"
-					rel="noopener noreferrer"
-					class="p-3 text-neutral-700 dark:text-neutral-200 hover:text-black dark:hover:text-white transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-900"
-					aria-label="GitHub"
-				>
-					<Github client:load class="w-6 h-6" />
-				</a>
-				<a
-					href="https://linkedin.com/in/martsokha"
-					target="_blank"
-					rel="noopener noreferrer"
-					class="p-3 text-neutral-700 dark:text-neutral-200 hover:text-black dark:hover:text-white transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-900"
-					aria-label="LinkedIn"
-				>
-					<Linkedin client:load class="w-6 h-6" />
-				</a>
+			<!-- Theme Toggle -->
+			<div class="flex justify-center md:justify-end">
+				<ThemeSwitch client:load />
 			</div>
 		</div>
 	</div>
