@@ -1,2 +1,2 @@
 // Utils exports for easier importing
-export * from './pages';
+export * from "./pages";

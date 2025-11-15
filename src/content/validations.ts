@@ -4,16 +4,14 @@
  * @returns true if valid, throws error if invalid
  */
 export const validateSingleWordTags = (tags: string[] | undefined): boolean => {
-  if (!tags) return true;
+	if (!tags) return true;
 
-  for (const tag of tags) {
-    if (tag.includes(" ") || tag.includes("-")) {
-      throw new Error(
-        `Tag "${tag}" contains spaces or hyphens. Tags must be single words only.`,
-      );
-    }
-  }
-  return true;
+	for (const tag of tags) {
+		if (tag.includes(" ") || tag.includes("-")) {
+			throw new Error(`Tag "${tag}" contains spaces or hyphens. Tags must be single words only.`);
+		}
+	}
+	return true;
 };
 
 /**
@@ -25,18 +23,18 @@ export const validateSingleWordTags = (tags: string[] | undefined): boolean => {
  * @returns true if valid, throws error if invalid
  */
 export const validateStringLength = (
-  value: string,
-  fieldName: string,
-  minLength: number = 1,
-  maxLength: number = 200,
+	value: string,
+	fieldName: string,
+	minLength: number = 1,
+	maxLength: number = 200,
 ): boolean => {
-  if (value.length < minLength) {
-    throw new Error(`${fieldName} must be at least ${minLength} characters long.`);
-  }
-  if (value.length > maxLength) {
-    throw new Error(`${fieldName} must be no more than ${maxLength} characters long.`);
-  }
-  return true;
+	if (value.length < minLength) {
+		throw new Error(`${fieldName} must be at least ${minLength} characters long.`);
+	}
+	if (value.length > maxLength) {
+		throw new Error(`${fieldName} must be no more than ${maxLength} characters long.`);
+	}
+	return true;
 };
 
 /**
@@ -46,10 +44,9 @@ export const validateStringLength = (
  * @returns true if valid, throws error if invalid
  */
 export const validateNotFutureDate = (date: Date, fieldName: string): boolean => {
-  const now = new Date();
-  if (date > now) {
-    throw new Error(`${fieldName} cannot be in the future.`);
-  }
-  return true;
+	const now = new Date();
+	if (date > now) {
+		throw new Error(`${fieldName} cannot be in the future.`);
+	}
+	return true;
 };
-

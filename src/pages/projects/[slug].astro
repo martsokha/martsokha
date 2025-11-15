@@ -1,8 +1,8 @@
 ---
-import { Layout } from "@/layouts";
 import { getCollection, render } from "astro:content";
-import { ArrowLeft, Github, ExternalLink } from "lucide-vue-next";
+import { ArrowLeft, ExternalLink, Github } from "lucide-vue-next";
 import { Badge } from "@/components/ui/badge";
+import { Layout } from "@/layouts";
 
 export async function getStaticPaths() {
 	const projects = await getCollection("projects");
@@ -15,16 +15,20 @@ export async function getStaticPaths() {
 const { project } = Astro.props;
 const { Content } = await render(project);
 
-const publishedDate = new Date(project.data.publishedAt).toLocaleDateString('en-US', {
-	year: 'numeric',
-	month: 'long',
-	day: 'numeric'
-}).toUpperCase();
+const publishedDate = new Date(project.data.publishedAt)
+	.toLocaleDateString("en-US", {
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+	})
+	.toUpperCase();
 
 // Meta information for structured data
 const metaInfo = {
 	publishedTime: project.data.publishedAt.toISOString(),
-	...(project.data.updatedAt && { modifiedTime: project.data.updatedAt.toISOString() })
+	...(project.data.updatedAt && {
+		modifiedTime: project.data.updatedAt.toISOString(),
+	}),
 };
 ---
 

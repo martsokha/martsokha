@@ -1,26 +1,28 @@
 ---
-import { Layout } from "@/layouts";
 import { getCollection } from "astro:content";
 import { ArrowRight } from "lucide-vue-next";
 import { Badge } from "@/components/ui/badge";
+import { Layout } from "@/layouts";
 
 // Get all blog posts
 const allPosts = await getCollection("posts");
 const posts = allPosts
 	.sort((a, b) => new Date(b.data.publishedAt).getTime() - new Date(a.data.publishedAt).getTime())
-	.map(post => {
+	.map((post) => {
 		// Calculate reading time (assuming 200 words per minute)
 		const wordCount = post.body.split(/\s+/).length;
 		const readingTime = Math.max(1, Math.ceil(wordCount / 200));
 
 		return {
 			...post,
-			formattedDate: new Date(post.data.publishedAt).toLocaleDateString('en-US', {
-				year: 'numeric',
-				month: 'long',
-				day: 'numeric'
-			}).toUpperCase(),
-			readingTime
+			formattedDate: new Date(post.data.publishedAt)
+				.toLocaleDateString("en-US", {
+					year: "numeric",
+					month: "long",
+					day: "numeric",
+				})
+				.toUpperCase(),
+			readingTime,
 		};
 	});
 

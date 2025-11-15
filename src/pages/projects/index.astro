@@ -1,8 +1,8 @@
 ---
-import { Layout } from "@/layouts";
 import { getCollection } from "astro:content";
 import { ArrowRight } from "lucide-vue-next";
 import { Badge } from "@/components/ui/badge";
+import { Layout } from "@/layouts";
 
 // Get all projects and sort by featured first, then by date
 const allProjects = await getCollection("projects");
@@ -14,14 +14,16 @@ const projects = allProjects
 		// Then by date
 		return new Date(b.data.publishedAt).getTime() - new Date(a.data.publishedAt).getTime();
 	})
-	.map(project => {
+	.map((project) => {
 		return {
 			...project,
-			formattedDate: new Date(project.data.publishedAt).toLocaleDateString('en-US', {
-				year: 'numeric',
-				month: 'long',
-				day: 'numeric'
-			}).toUpperCase(),
+			formattedDate: new Date(project.data.publishedAt)
+				.toLocaleDateString("en-US", {
+					year: "numeric",
+					month: "long",
+					day: "numeric",
+				})
+				.toUpperCase(),
 		};
 	});
 

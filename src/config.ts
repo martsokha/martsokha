@@ -10,7 +10,7 @@ export const DEFAULT_TITLE = "Oleh Martsokha";
 
 /** Default meta description for SEO and social media sharing */
 export const DEFAULT_DESCRIPTION =
-  "Software engineer passionate about building exceptional digital experiences. Thoughts on development, design, and technology.";
+	"Software engineer passionate about building exceptional digital experiences. Thoughts on development, design, and technology.";
 
 /** Default author name for articles and structured data */
 export const DEFAULT_AUTHOR = "Oleh Martsokha";
@@ -26,9 +26,9 @@ export const DEFAULT_OG_IMAGE = "/og-image.jpg";
 
 /** Social media links configuration */
 export const SOCIAL_LINKS = {
-  instagram: "https://instagram.com/martsokha",
-  bluesky: "https://bsky.app/profile/martsokha.com",
-  linkedin: "https://linkedin.com/in/martsokha",
-  github: "https://github.com/martsokha",
-  email: "hello@martsokha.com",
+	instagram: "https://instagram.com/martsokha",
+	bluesky: "https://bsky.app/profile/martsokha.com",
+	linkedin: "https://linkedin.com/in/martsokha",
+	github: "https://github.com/martsokha",
+	email: "hello@martsokha.com",
 } as const;

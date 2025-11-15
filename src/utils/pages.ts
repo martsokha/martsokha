@@ -21,10 +21,10 @@ export const defaultMeta: Partial<PageMeta> = {
 
 // Blog utilities
 export function formatDate(date: string | Date): string {
-	return new Date(date).toLocaleDateString('en-US', {
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric'
+	return new Date(date).toLocaleDateString("en-US", {
+		year: "numeric",
+		month: "long",
+		day: "numeric",
 	});
 }
 
@@ -35,7 +35,7 @@ export function calculateReadingTime(content: string): number {
 }
 
 export function generateExcerpt(content: string, maxLength: number = 160): string {
-	const plainText = content.replace(/[#*`]/g, '').trim();
+	const plainText = content.replace(/[#*`]/g, "").trim();
 	if (plainText.length <= maxLength) return plainText;
-	return plainText.slice(0, maxLength).trim() + '...';
+	return plainText.slice(0, maxLength).trim() + "...";
 }

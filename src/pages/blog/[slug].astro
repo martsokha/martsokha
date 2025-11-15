@@ -1,12 +1,11 @@
 ---
-import { Layout } from "@/layouts";
 import { getCollection, render } from "astro:content";
 import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-vue-next";
-import { Badge } from "@/components/ui/badge";
-
 // Import SVG icons
 import BlueskyIcon from "@/assets/icons/bluesky.svg?raw";
 import LinkedInIcon from "@/assets/icons/linkedin.svg?raw";
+import { Badge } from "@/components/ui/badge";
+import { Layout } from "@/layouts";
 
 export async function getStaticPaths() {
 	const posts = await getCollection("posts");
@@ -21,23 +20,29 @@ const { Content } = await render(post);
 
 // Get all posts for prev/next navigation
 const allPosts = await getCollection("posts");
-const sortedPosts = allPosts.sort((a, b) => new Date(b.data.publishedAt).getTime() - new Date(a.data.publishedAt).getTime());
-const currentIndex = sortedPosts.findIndex(p => p.id === post.id);
+const sortedPosts = allPosts.sort(
+	(a, b) => new Date(b.data.publishedAt).getTime() - new Date(a.data.publishedAt).getTime(),
+);
+const currentIndex = sortedPosts.findIndex((p) => p.id === post.id);
 const prevPost = currentIndex < sortedPosts.length - 1 ? sortedPosts[currentIndex + 1] : null;
 const nextPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
 
-const publishedDate = new Date(post.data.publishedAt).toLocaleDateString('en-US', {
-	year: 'numeric',
-	month: 'long',
-	day: 'numeric'
-}).toUpperCase();
+const publishedDate = new Date(post.data.publishedAt)
+	.toLocaleDateString("en-US", {
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+	})
+	.toUpperCase();
 
-const readingTime = Math.ceil((post.body || '').split(' ').length / 200);
+const readingTime = Math.ceil((post.body || "").split(" ").length / 200);
 
 // Meta information for structured data
 const metaInfo = {
 	publishedTime: post.data.publishedAt.toISOString(),
-	...(post.data.updatedAt && { modifiedTime: post.data.updatedAt.toISOString() })
+	...(post.data.updatedAt && {
+		modifiedTime: post.data.updatedAt.toISOString(),
+	}),
 };
 
 const shareUrl = Astro.url.href;
