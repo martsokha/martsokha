@@ -3,14 +3,7 @@ import { Layout } from "@/layouts";
 import { getCollection, render } from "astro:content";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { ArrowLeft, Share2 } from "lucide-vue-next";
 
 export async function getStaticPaths() {
 	const posts = await getCollection("posts");
@@ -29,69 +22,63 @@ const publishedDate = new Date(post.data.publishedAt).toLocaleDateString('en-US'
 	day: 'numeric'
 });
 
-// Calculate reading time (rough estimate)
+const updatedDate = post.data.updatedAt
+	? new Date(post.data.updatedAt).toLocaleDateString('en-US', {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric'
+	})
+	: null;
+
+const hasUpdate = post.data.updatedAt && post.data.updatedAt !== post.data.publishedAt;
 const readingTime = Math.ceil((post.body || '').split(' ').length / 200);
+
+// Meta information for structured data
+const metaInfo = {
+	publishedTime: post.data.publishedAt.toISOString(),
+	...(post.data.updatedAt && { modifiedTime: post.data.updatedAt.toISOString() })
+};
 ---
 
 <Layout
 	title={post.data.title}
 	description={post.data.description}
 	article={true}
-	publishedTime={post.data.publishedAt.toISOString()}
-	{...(post.data.updatedAt && { modifiedTime: post.data.updatedAt.toISOString() })}
+	{...metaInfo}
 >
-	<article class="container mx-auto px-4 py-8 max-w-4xl">
-		<!-- Breadcrumbs -->
-		<div class="mb-8">
-			<Breadcrumb client:load>
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink as-child>
-							<a href="/">Home</a>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbLink as-child>
-							<a href="/blog">Blog</a>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbPage>{post.data.title}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
-		</div>
-
+	<article class="container mx-auto px-4 py-12 max-w-4xl">
 		<!-- Post Header -->
-		<header class="mb-16">
-			<h1 class="text-4xl lg:text-5xl font-bold text-neutral-900 dark:text-neutral-100 mb-8 leading-tight">
+		<header class="mb-20">
+			<h1 class="text-4xl lg:text-6xl font-bold text-black dark:text-white mb-10 leading-tight">
 				{post.data.title}
 			</h1>
 
-			<div class="flex flex-wrap items-center gap-6 text-lg text-neutral-500 dark:text-neutral-500 mb-10">
-				<time datetime={post.data.publishedAt.toISOString()}>
+			{post.data.category && (
+				<div class="mb-8">
+					<Badge client:load variant="default" class="text-sm px-4 py-2">
+						{post.data.category}
+					</Badge>
+				</div>
+			)}
+
+			<div class="flex flex-wrap items-center gap-4 text-base text-neutral-600 dark:text-neutral-300 mb-12">
+				<time datetime={post.data.publishedAt.toISOString()} class="font-medium">
 					{publishedDate}
 				</time>
-				<span class="text-neutral-300 dark:text-neutral-700">•</span>
+				<span class="text-neutral-400 dark:text-neutral-500">•</span>
 				<span>{readingTime} min read</span>
-				{post.data.updatedAt && post.data.updatedAt !== post.data.publishedAt && (
+				{hasUpdate && (
 					<>
-						<span class="text-neutral-300 dark:text-neutral-700">•</span>
-						<span>Updated {new Date(post.data.updatedAt).toLocaleDateString('en-US', {
-							year: 'numeric',
-							month: 'long',
-							day: 'numeric'
-						})}</span>
+						<span class="text-neutral-400 dark:text-neutral-500">•</span>
+						<span class="text-neutral-700 dark:text-neutral-200">Updated {updatedDate}</span>
 					</>
 				)}
 			</div>
 
 			{post.data.tags && post.data.tags.length > 0 && (
-				<div class="flex flex-wrap gap-3">
+				<div class="flex flex-wrap gap-2">
 					{post.data.tags.map((tag: string) => (
-						<Badge client:load variant="secondary" class="text-base px-3 py-1">
+						<Badge client:load variant="secondary" class="text-sm px-3 py-1.5">
 							{tag}
 						</Badge>
 					))}
@@ -100,43 +87,51 @@ const readingTime = Math.ceil((post.body || '').split(' ').length / 200);
 		</header>
 
 		<!-- Post Content -->
-		<div class="prose prose-neutral dark:prose-invert prose-2xl max-w-none mb-20 leading-relaxed">
+		<div class="prose prose-neutral dark:prose-invert prose-xl max-w-none mb-24 leading-relaxed">
 			<Content />
 		</div>
 
 		<!-- Post Footer -->
-		<footer class="mt-20 pt-8 border-t border-neutral-200 dark:border-neutral-800">
-			<nav class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-				<Button client:load variant="outline" as-child>
-					<a
-						href="/blog"
-						class="inline-flex items-center text-base px-6 py-3"
-					>
-						<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-						</svg>
-						Back to Blog
-					</a>
-				</Button>
-
-				<div class="flex flex-col sm:flex-row gap-4">
-					<Button client:load variant="ghost" as-child>
+		<footer class="mt-24 pt-12 border-t border-neutral-200 dark:border-neutral-200">
+			<!-- Share buttons -->
+			<div class="mb-10">
+				<p class="text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-6">Share this article:</p>
+				<div class="flex flex-wrap gap-3">
+					<Button client:load variant="outline" as-child size="sm">
 						<a
-							href={`mailto:?subject=${encodeURIComponent(post.data.title)}&body=${encodeURIComponent(`Check out this post: ${Astro.site}${Astro.url.pathname}`)}`}
-							class="text-base px-6 py-3"
+							href={`https://bsky.app/intent/compose?text=${encodeURIComponent(post.data.title + ' ' + Astro.url.href)}`}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="inline-flex items-center"
 						>
-							Share via Email
+							<Share2 client:load class="w-4 h-4 mr-2" />
+							Bluesky
 						</a>
 					</Button>
-					<Button client:load variant="ghost" as-child>
+					<Button client:load variant="outline" as-child size="sm">
 						<a
-							href="/contact"
-							class="text-base px-6 py-3"
+							href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(Astro.url.href)}`}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="inline-flex items-center"
 						>
-							Discuss this post
+							<Share2 client:load class="w-4 h-4 mr-2" />
+							LinkedIn
 						</a>
 					</Button>
 				</div>
+			</div>
+
+			<nav class="flex justify-start">
+				<Button client:load variant="outline" as-child size="lg">
+					<a
+						href="/blog"
+						class="inline-flex items-center text-base px-8 py-4"
+					>
+						<ArrowLeft client:load class="w-5 h-5 mr-3" />
+						Back to Blog
+					</a>
+				</Button>
 			</nav>
 		</footer>
 	</article>

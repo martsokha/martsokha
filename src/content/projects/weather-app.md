@@ -1,7 +1,7 @@
 ---
 title: "Weather App"
 description: "A clean, intuitive weather application providing current conditions and forecasts with location-based services and offline capabilities."
-technologies: ["React", "JavaScript", "CSS3", "OpenWeather API", "Service Workers", "Geolocation API"]
+tags: ["React", "JavaScript", "CSS3", "OpenWeather API", "Service Workers", "Geolocation API"]
 github: "https://github.com/martsokha/weather-app"
 demo: "https://weather-app.martsokha.com"
 status: "Completed"

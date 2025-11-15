@@ -1,16 +1,36 @@
-### Hi there 👋
+# Hey, I'm Oleh 👋
 
-<!--
-**martsokha/martsokha** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+Software engineer passionate about building elegant solutions to complex problems. I focus on creating well-architected systems with clean, maintainable code.
 
-Here are some ideas to get you started:
+## 🛠️ Tech Stack
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+**Languages & Frameworks:**
+- TypeScript, JavaScript, Node.js
+- React, Vue.js, Astro
+- PostgreSQL, MongoDB, Redis
+
+**Tools & Platforms:**
+- Docker, GitHub Actions
+- Tailwind CSS, Vite
+- Git, Linux/Unix
+
+## 🚀 What I'm Working On
+
+- Building my personal website with Astro and modern web technologies
+- Exploring full-stack development with a focus on performance and UX
+- Learning system design and scalable architecture patterns
+
+## 📫 Get in Touch
+
+- Website: [martsokha.com](https://martsokha.com)
+- Email: hello@martsokha.com
+- LinkedIn: [linkedin.com/in/martsokha](https://linkedin.com/in/martsokha)
+
+## 📝 Latest Blog Posts
+
+<!-- BLOG-POST-LIST:START -->
+<!-- BLOG-POST-LIST:END -->
+
+---
+
+💡 *Always learning, always building.*

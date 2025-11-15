@@ -1,7 +1,7 @@
 ---
 title: "Task Management API"
 description: "A scalable REST API for task and project management with team collaboration features, built with modern backend technologies and comprehensive testing."
-technologies: ["Node.js", "TypeScript", "Express", "MongoDB", "Jest", "Docker", "Redis", "JWT"]
+tags: ["Node.js", "TypeScript", "Express", "MongoDB", "Jest", "Docker", "Redis", "JWT"]
 github: "https://github.com/martsokha/task-management-api"
 status: "Completed"
 featured: false

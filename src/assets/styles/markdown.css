@@ -1,17 +1,18 @@
 pre {
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
   border-width: 1px;
   background-color: transparent !important;
-  padding: 1em;
-  margin-left: 1em;
-  margin-right: 4em;
+  padding: 1.5rem;
+  margin: 2rem 0;
 }
 
 code {
-  /* TODO: Replace with astro.config. */
   font-family: "JetBrains", monospace;
-  font-size: 1.125rem; /* 18px */
-  line-height: 1.75rem; /* 28px */
+  font-size: 0.95em;
+  line-height: 1.5;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
 }
 
 /* Markdown content styling within prose containers */
@@ -35,7 +36,8 @@ article .prose h1 {
 article .prose h2 {
   font-size: 1.875rem; /* 30px */
   border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.75rem;
+  margin-top: 3rem;
 }
 
 article .prose h3 {
@@ -90,14 +92,16 @@ article .prose ol ul {
 }
 
 article .prose a {
-  color: #2563eb;
+  color: #000;
   text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
   font-weight: 500;
 }
 
 article .prose a:hover {
-  color: #1d4ed8;
-  text-decoration: none;
+  color: #666;
+  text-decoration-thickness: 3px;
 }
 
 article .prose strong {
@@ -109,11 +113,14 @@ article .prose em {
 }
 
 article .prose blockquote {
-  border-left: 4px solid #e5e7eb;
-  padding-left: 1rem;
-  margin: 1.5rem 0;
+  border-left: 3px solid #000;
+  padding-left: 1.5rem;
+  margin: 2rem 0;
   font-style: italic;
-  color: #6b7280;
+  color: #333;
+  background: rgba(0, 0, 0, 0.02);
+  padding: 1.5rem 1.5rem 1.5rem 2rem;
+  border-radius: 0.375rem;
 }
 
 article .prose table {
@@ -130,12 +137,12 @@ article .prose td {
 }
 
 article .prose th {
-  background-color: #f9fafb;
-  font-weight: 600;
+  background-color: #f8f9fa;
+  font-weight: 700;
 }
 
 article .prose tr:nth-child(even) {
-  background-color: #f9fafb;
+  background-color: #f8f9fa;
 }
 
 article .prose hr {
@@ -153,37 +160,45 @@ article .prose img {
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
+  code {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #f1f1f1;
+  }
+
   article .prose h2 {
-    border-bottom-color: #374151;
+    border-bottom-color: #333;
   }
 
   article .prose a {
-    color: #60a5fa;
+    color: #fff;
+    text-decoration-color: rgba(255, 255, 255, 0.6);
   }
 
   article .prose a:hover {
-    color: #93c5fd;
+    color: #e5e5e5;
+    text-decoration-color: #fff;
   }
 
   article .prose blockquote {
-    border-left-color: #374151;
-    color: #9ca3af;
+    border-left-color: #fff;
+    color: #e5e5e5;
+    background: rgba(255, 255, 255, 0.05);
   }
 
   article .prose th,
   article .prose td {
-    border-color: #374151;
+    border-color: #333;
   }
 
   article .prose th {
-    background-color: #1f2937;
+    background-color: #111;
   }
 
   article .prose tr:nth-child(even) {
-    background-color: #1f2937;
+    background-color: #111;
   }
 
   article .prose hr {
-    border-top-color: #374151;
+    border-top-color: #333;
   }
 }

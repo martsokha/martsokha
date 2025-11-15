@@ -7,6 +7,7 @@ const posts = defineCollection({
     description: z.string(),
     publishedAt: z.coerce.date(),
     updatedAt: z.coerce.date().optional(),
+    category: z.string().optional(),
     tags: z.array(z.string()).optional(),
     draft: z.boolean().default(false),
   }),
@@ -17,7 +18,7 @@ const projects = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    technologies: z.array(z.string()),
+    tags: z.array(z.string()),
     github: z.string().url().optional(),
     demo: z.string().url().optional(),
     status: z
