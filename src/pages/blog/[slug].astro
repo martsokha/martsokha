@@ -1,0 +1,143 @@
+---
+import { Layout } from "@/layouts";
+import { getCollection, render } from "astro:content";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+
+export async function getStaticPaths() {
+	const posts = await getCollection("posts");
+	return posts.map((post) => ({
+		params: { slug: post.id },
+		props: { post },
+	}));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const publishedDate = new Date(post.data.publishedAt).toLocaleDateString('en-US', {
+	year: 'numeric',
+	month: 'long',
+	day: 'numeric'
+});
+
+// Calculate reading time (rough estimate)
+const readingTime = Math.ceil((post.body || '').split(' ').length / 200);
+---
+
+<Layout
+	title={post.data.title}
+	description={post.data.description}
+	article={true}
+	publishedTime={post.data.publishedAt.toISOString()}
+	{...(post.data.updatedAt && { modifiedTime: post.data.updatedAt.toISOString() })}
+>
+	<article class="container mx-auto px-4 py-8 max-w-4xl">
+		<!-- Breadcrumbs -->
+		<div class="mb-8">
+			<Breadcrumb client:load>
+				<BreadcrumbList>
+					<BreadcrumbItem>
+						<BreadcrumbLink as-child>
+							<a href="/">Home</a>
+						</BreadcrumbLink>
+					</BreadcrumbItem>
+					<BreadcrumbSeparator />
+					<BreadcrumbItem>
+						<BreadcrumbLink as-child>
+							<a href="/blog">Blog</a>
+						</BreadcrumbLink>
+					</BreadcrumbItem>
+					<BreadcrumbSeparator />
+					<BreadcrumbItem>
+						<BreadcrumbPage>{post.data.title}</BreadcrumbPage>
+					</BreadcrumbItem>
+				</BreadcrumbList>
+			</Breadcrumb>
+		</div>
+
+		<!-- Post Header -->
+		<header class="mb-16">
+			<h1 class="text-4xl lg:text-5xl font-bold text-neutral-900 dark:text-neutral-100 mb-8 leading-tight">
+				{post.data.title}
+			</h1>
+
+			<div class="flex flex-wrap items-center gap-6 text-lg text-neutral-500 dark:text-neutral-500 mb-10">
+				<time datetime={post.data.publishedAt.toISOString()}>
+					{publishedDate}
+				</time>
+				<span class="text-neutral-300 dark:text-neutral-700">•</span>
+				<span>{readingTime} min read</span>
+				{post.data.updatedAt && post.data.updatedAt !== post.data.publishedAt && (
+					<>
+						<span class="text-neutral-300 dark:text-neutral-700">•</span>
+						<span>Updated {new Date(post.data.updatedAt).toLocaleDateString('en-US', {
+							year: 'numeric',
+							month: 'long',
+							day: 'numeric'
+						})}</span>
+					</>
+				)}
+			</div>
+
+			{post.data.tags && post.data.tags.length > 0 && (
+				<div class="flex flex-wrap gap-3">
+					{post.data.tags.map((tag: string) => (
+						<Badge client:load variant="secondary" class="text-base px-3 py-1">
+							{tag}
+						</Badge>
+					))}
+				</div>
+			)}
+		</header>
+
+		<!-- Post Content -->
+		<div class="prose prose-neutral dark:prose-invert prose-2xl max-w-none mb-20 leading-relaxed">
+			<Content />
+		</div>
+
+		<!-- Post Footer -->
+		<footer class="mt-20 pt-8 border-t border-neutral-200 dark:border-neutral-800">
+			<nav class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+				<Button client:load variant="outline" as-child>
+					<a
+						href="/blog"
+						class="inline-flex items-center text-base px-6 py-3"
+					>
+						<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+						</svg>
+						Back to Blog
+					</a>
+				</Button>
+
+				<div class="flex flex-col sm:flex-row gap-4">
+					<Button client:load variant="ghost" as-child>
+						<a
+							href={`mailto:?subject=${encodeURIComponent(post.data.title)}&body=${encodeURIComponent(`Check out this post: ${Astro.site}${Astro.url.pathname}`)}`}
+							class="text-base px-6 py-3"
+						>
+							Share via Email
+						</a>
+					</Button>
+					<Button client:load variant="ghost" as-child>
+						<a
+							href="/contact"
+							class="text-base px-6 py-3"
+						>
+							Discuss this post
+						</a>
+					</Button>
+				</div>
+			</nav>
+		</footer>
+	</article>
+</Layout>

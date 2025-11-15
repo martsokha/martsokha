@@ -1,2 +1,8 @@
-User-Agent: *
-Disallow:
+User-agent: *
+Allow: /
+
+# Crawl delay
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://martsokha.com/sitemap-index.xml

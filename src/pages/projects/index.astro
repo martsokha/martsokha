@@ -1,0 +1,123 @@
+---
+import { Layout } from "@/layouts";
+import { getCollection } from "astro:content";
+import { Badge } from "@/components/ui/badge";
+
+// Get all projects and sort by featured first, then by date
+const allProjects = await getCollection("projects");
+const projects = allProjects
+	.sort((a, b) => {
+		// Featured projects first
+		if (a.data.featured && !b.data.featured) return -1;
+		if (!a.data.featured && b.data.featured) return 1;
+		// Then by date
+		return new Date(b.data.publishedAt).getTime() - new Date(a.data.publishedAt).getTime();
+	});
+
+const pageTitle = "Projects";
+const pageDescription = "A collection of projects I've built and contributed to.";
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+	<div class="container mx-auto px-4 py-8 max-w-4xl">
+		<!-- Header -->
+		<div class="mb-16">
+			<h1 class="text-4xl font-bold text-neutral-900 dark:text-neutral-100 mb-6">
+				Projects
+			</h1>
+			<p class="text-xl text-neutral-600 dark:text-neutral-400 leading-relaxed">
+				A collection of projects I've built and contributed to. From web applications
+				to open-source tools, these represent my passion for creating useful software.
+			</p>
+		</div>
+
+		{projects.length === 0 ? (
+			<div class="text-center py-16">
+				<div class="text-neutral-400 dark:text-neutral-600 text-lg">
+					No projects yet. Check back soon!
+				</div>
+			</div>
+		) : (
+			<div class="space-y-6">
+				{projects.map((project) => (
+					<article class="group">
+						<a href={`/projects/${project.id}`} class="block">
+							<div class="border border-neutral-200 dark:border-neutral-800 rounded-xl p-8 transition-all duration-200 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-md dark:hover:shadow-neutral-900/20 cursor-pointer">
+								<div class="flex flex-col space-y-6">
+									<!-- Header with title, featured badge, and status -->
+									<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+										<div class="flex flex-col gap-3">
+											<div class="flex items-center gap-3">
+												<h3 class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-700 dark:group-hover:text-neutral-300 transition-colors">
+													{project.data.title}
+												</h3>
+												{project.data.featured && (
+													<Badge client:load variant="default" class="text-xs">
+														Featured
+													</Badge>
+												)}
+											</div>
+										</div>
+										<Badge
+											client:load
+											variant={project.data.status === 'Active' ? 'default' : project.data.status === 'In Progress' ? 'secondary' : 'outline'}
+											class="shrink-0 text-sm"
+										>
+											{project.data.status}
+										</Badge>
+									</div>
+
+									<!-- Description -->
+									<p class="text-lg text-neutral-600 dark:text-neutral-400 leading-relaxed">
+										{project.data.description}
+									</p>
+
+									<!-- Technologies -->
+									<div class="flex flex-wrap gap-2">
+										{project.data.technologies.map((tech) => (
+											<Badge client:load variant="outline" class="text-sm">
+												{tech}
+											</Badge>
+										))}
+									</div>
+
+									<!-- Links -->
+									<div class="flex flex-wrap gap-4 text-base">
+										{project.data.github && (
+											<span class="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+												→ View Code
+											</span>
+										)}
+										{project.data.demo && (
+											<span class="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+												→ Live Demo
+											</span>
+										)}
+									</div>
+
+									<!-- Read more indicator -->
+									<div class="flex items-center text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-100 transition-colors pt-2">
+										<span class="text-base font-medium">View project details</span>
+										<svg
+											class="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M17 8l4 4m0 0l-4 4m4-4H3"
+											/>
+										</svg>
+									</div>
+								</div>
+							</div>
+						</a>
+					</article>
+				))}
+			</div>
+		)}
+	</div>
+</Layout>

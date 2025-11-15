@@ -1,0 +1,146 @@
+---
+import { DEFAULT_TITLE, DEFAULT_DESCRIPTION, BUILD_VERSION, DEFAULT_AUTHOR, DEFAULT_OG_IMAGE, SITE_URL } from "@/config";
+
+import "@/assets/styles/font.css";
+import "@/assets/styles/markdown.css";
+import "@/assets/styles/tailwind.css";
+
+/**
+ * Props interface for the MinLayout component
+ *
+ * This is the minimal layout that provides the HTML document structure,
+ * meta tags, SEO optimization, and basic page scaffolding without
+ * header/footer components.
+ */
+export interface Props {
+	/** Page title (will be combined with site title if withDefaultTitle is true) */
+	title?: string;
+	/** Meta description for SEO and social media sharing */
+	description?: string;
+	/** Build version to display in meta tags */
+	version?: string;
+	/** Whether to append the default site title to the page title */
+	withDefaultTitle?: boolean;
+	/** Open Graph image URL for social media sharing */
+	image?: string;
+	/** Whether this page represents an article (affects structured data and meta tags) */
+	article?: boolean;
+	/** Article published timestamp in ISO 8601 format (for article structured data) */
+	publishedTime?: string;
+	/** Article modified timestamp in ISO 8601 format (for article structured data) */
+	modifiedTime?: string;
+	/** Article author name (for article structured data) */
+	author?: string;
+	/** SEO keywords as comma-separated string */
+	keywords?: string;
+}
+
+const {
+	title = DEFAULT_TITLE,
+	description = DEFAULT_DESCRIPTION,
+	version = BUILD_VERSION,
+	withDefaultTitle = true,
+	image = DEFAULT_OG_IMAGE,
+	article = false,
+	publishedTime,
+	modifiedTime,
+	author = DEFAULT_AUTHOR,
+	keywords,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site || SITE_URL).toString();
+const pageTitle = withDefaultTitle ? `${title} · ${DEFAULT_TITLE}` : title;
+const fullImageUrl = new URL(image, Astro.site || SITE_URL).toString();
+
+// Generate structured data
+const structuredData = {
+	"@context": "https://schema.org",
+	"@type": article ? "Article" : "WebPage",
+	headline: pageTitle,
+	description,
+	url: canonical,
+	image: fullImageUrl,
+	author: {
+		"@type": "Organization",
+		name: author,
+		url: Astro.site?.toString() || SITE_URL,
+	},
+	publisher: {
+		"@type": "Organization",
+		name: DEFAULT_TITLE,
+		url: Astro.site?.toString() || SITE_URL,
+	},
+	...(publishedTime && { datePublished: publishedTime }),
+	...(modifiedTime && { dateModified: modifiedTime }),
+};
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Global Metadata -->
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="version" content={version} />
+
+		<!-- Performance Optimizations -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link rel="dns-prefetch" href="https://cloud.umami.is" />
+
+		<!-- Theme and Appearance -->
+		<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+		<meta name="color-scheme" content="light dark" />
+
+		<!-- Favicon and Icons -->
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+		<link rel="manifest" href="/site.webmanifest" />
+
+		<!-- Sitemap and Robots -->
+		<link rel="sitemap" href="/sitemap-index.xml" />
+		<link rel="author" type="text/plain" href="/humans.txt" />
+
+		<!-- Security -->
+		<meta http-equiv="X-Content-Type-Options" content="nosniff" />
+		<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+
+		<!-- SEO -->
+		<link rel="canonical" href={canonical} />
+		<title>{pageTitle}</title>
+		<meta name="title" content={pageTitle} />
+		<meta name="description" content={description} />
+		{keywords && <meta name="keywords" content={keywords} />}
+
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content={article ? "article" : "website"} />
+		<meta property="og:url" content={canonical} />
+		<meta property="og:title" content={pageTitle} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={fullImageUrl} />
+		<meta property="og:site_name" content={DEFAULT_TITLE} />
+		<meta property="og:locale" content="en_US" />
+		{article && publishedTime && <meta property="article:published_time" content={publishedTime} />}
+		{article && modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+		{article && author && <meta property="article:author" content={author} />}
+
+
+
+		<!-- Structured Data -->
+		<script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+
+		<!-- Analytics -->
+		<slot name="analytics" />
+	</head>
+	<body class="bg-white dark:bg-black antialiased">
+	    <!-- Content Components -->
+		<slot name="content" />
+
+		<!-- Compliance Components -->
+		<slot name="compliance" />
+	</body>
+</html>

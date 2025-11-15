@@ -1,0 +1,47 @@
+---
+import { Github, Linkedin, Mail } from 'lucide-vue-next';
+import ThemeToggle from '@/components/ThemeToggle.astro';
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="border-t border-neutral-200 dark:border-neutral-800 py-12">
+	<div class="container mx-auto px-4 max-w-4xl">
+		<div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-6 md:space-y-0">
+			<!-- Copyright -->
+			<div class="text-base text-neutral-600 dark:text-neutral-400 order-2 md:order-1 text-center md:text-left">
+				© {currentYear} Oleh Martsokha. All rights reserved.
+			</div>
+
+			<!-- Social Links and Theme Toggle -->
+			<div class="flex items-center justify-center md:justify-end space-x-4 order-1 md:order-2">
+				<a
+					href="mailto:hello@martsokha.com"
+					class="p-3 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
+					aria-label="Email"
+				>
+					<Mail client:load class="w-6 h-6" />
+				</a>
+				<a
+					href="https://github.com/martsokha"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="p-3 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
+					aria-label="GitHub"
+				>
+					<Github client:load class="w-6 h-6" />
+				</a>
+				<a
+					href="https://linkedin.com/in/martsokha"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="p-3 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
+					aria-label="LinkedIn"
+				>
+					<Linkedin client:load class="w-6 h-6" />
+				</a>
+				<ThemeToggle />
+			</div>
+		</div>
+	</div>
+</footer>

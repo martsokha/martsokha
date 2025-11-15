@@ -1,0 +1,195 @@
+---
+import { Layout } from "@/layouts";
+import { getCollection, render } from "astro:content";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+
+export async function getStaticPaths() {
+	const projects = await getCollection("projects");
+	return projects.map((project) => ({
+		params: { slug: project.id },
+		props: { project },
+	}));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+
+const publishedDate = new Date(project.data.publishedAt).toLocaleDateString('en-US', {
+	year: 'numeric',
+	month: 'long',
+	day: 'numeric'
+});
+---
+
+<Layout
+	title={project.data.title}
+	description={project.data.description}
+	publishedTime={project.data.publishedAt.toISOString()}
+	{...(project.data.updatedAt && { modifiedTime: project.data.updatedAt.toISOString() })}
+>
+	<article class="container mx-auto px-4 py-8 max-w-4xl">
+		<!-- Breadcrumbs -->
+		<div class="mb-8">
+			<Breadcrumb client:load>
+				<BreadcrumbList>
+					<BreadcrumbItem>
+						<BreadcrumbLink as-child>
+							<a href="/">Home</a>
+						</BreadcrumbLink>
+					</BreadcrumbItem>
+					<BreadcrumbSeparator />
+					<BreadcrumbItem>
+						<BreadcrumbLink as-child>
+							<a href="/projects">Projects</a>
+						</BreadcrumbLink>
+					</BreadcrumbItem>
+					<BreadcrumbSeparator />
+					<BreadcrumbItem>
+						<BreadcrumbPage>{project.data.title}</BreadcrumbPage>
+					</BreadcrumbItem>
+				</BreadcrumbList>
+			</Breadcrumb>
+		</div>
+
+		<!-- Project Header -->
+		<header class="mb-16">
+			<div class="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-8">
+				<h1 class="text-4xl lg:text-5xl font-bold text-neutral-900 dark:text-neutral-100 mb-6 lg:mb-0 leading-tight">
+					{project.data.title}
+				</h1>
+				<Badge
+					client:load
+					variant={project.data.status === 'Active' ? 'default' : project.data.status === 'In Progress' ? 'secondary' : 'outline'}
+					class="shrink-0 text-base px-4 py-2"
+				>
+					{project.data.status}
+				</Badge>
+			</div>
+
+			<p class="text-xl lg:text-2xl text-neutral-600 dark:text-neutral-400 mb-10 leading-relaxed">
+				{project.data.description}
+			</p>
+
+			<!-- Project Meta -->
+			<div class="flex flex-wrap items-center gap-6 text-base text-neutral-500 dark:text-neutral-500 mb-10">
+				<time datetime={project.data.publishedAt.toISOString()}>
+					Published {publishedDate}
+				</time>
+				{project.data.updatedAt && project.data.updatedAt !== project.data.publishedAt && (
+					<>
+						<span class="text-neutral-300 dark:text-neutral-700">•</span>
+						<span>Updated {new Date(project.data.updatedAt).toLocaleDateString('en-US', {
+							year: 'numeric',
+							month: 'long',
+							day: 'numeric'
+						})}</span>
+					</>
+				)}
+			</div>
+
+			<!-- Technologies -->
+			{project.data.technologies && project.data.technologies.length > 0 && (
+				<div class="mb-10">
+					<h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+						Technologies
+					</h2>
+					<div class="flex flex-wrap gap-3">
+						{project.data.technologies.map((tech: string) => (
+							<Badge client:load variant="outline" class="text-base px-3 py-1">
+								{tech}
+							</Badge>
+						))}
+					</div>
+				</div>
+			)}
+
+			<!-- Links -->
+			<div class="flex flex-wrap gap-4 mb-12">
+				{project.data.github && (
+					<Button client:load variant="outline" as-child>
+						<a
+							href={project.data.github}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="inline-flex items-center text-base px-6 py-3"
+						>
+							<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+								<path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path>
+							</svg>
+							View Code
+						</a>
+					</Button>
+				)}
+				{project.data.demo && (
+					<Button client:load as-child>
+						<a
+							href={project.data.demo}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="inline-flex items-center text-base px-6 py-3"
+						>
+							<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+							</svg>
+							Live Demo
+						</a>
+					</Button>
+				)}
+			</div>
+		</header>
+
+		<!-- Project Content -->
+		<div class="prose prose-neutral dark:prose-invert prose-xl max-w-none mb-16 leading-relaxed">
+			<Content />
+		</div>
+
+		<!-- Project Footer -->
+		<footer class="mt-20 pt-8 border-t border-neutral-200 dark:border-neutral-800">
+			<nav class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+				<Button client:load variant="outline" as-child>
+					<a
+						href="/projects"
+						class="inline-flex items-center text-base px-6 py-3"
+					>
+						<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+						</svg>
+						Back to Projects
+					</a>
+				</Button>
+
+				<div class="flex flex-col sm:flex-row gap-4">
+					<Button client:load variant="ghost" as-child>
+						<a
+							href="/contact"
+							class="text-base px-6 py-3"
+						>
+							Discuss this project
+						</a>
+					</Button>
+					{project.data.github && (
+						<Button client:load variant="ghost" as-child>
+							<a
+								href={`${project.data.github}/issues`}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="text-base px-6 py-3"
+							>
+								Report issues
+							</a>
+						</Button>
+					)}
+				</div>
+			</nav>
+		</footer>
+	</article>
+</Layout>

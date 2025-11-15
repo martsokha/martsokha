@@ -1,0 +1,214 @@
+---
+import { Layout } from "@/layouts";
+
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Mail, Github, Linkedin } from 'lucide-vue-next';
+
+const pageTitle = "Contact";
+const pageDescription = "Get in touch with Oleh Martsokha for collaboration opportunities, project discussions, or just to connect.";
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+	<div class="container mx-auto px-4 py-8 max-w-4xl">
+		<!-- Breadcrumbs -->
+		<div class="mb-8">
+			<Breadcrumb client:load>
+				<BreadcrumbList>
+					<BreadcrumbItem>
+						<BreadcrumbLink as-child>
+							<a href="/">Home</a>
+						</BreadcrumbLink>
+					</BreadcrumbItem>
+					<BreadcrumbSeparator />
+					<BreadcrumbItem>
+						<BreadcrumbPage>Contact</BreadcrumbPage>
+					</BreadcrumbItem>
+				</BreadcrumbList>
+			</Breadcrumb>
+		</div>
+
+		<!-- Header -->
+		<div class="mb-16 text-center">
+			<h1 class="text-4xl lg:text-5xl font-bold text-neutral-900 dark:text-neutral-100 mb-6">
+				Let's Connect
+			</h1>
+			<p class="text-xl text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-2xl mx-auto">
+				I'm always interested in discussing new opportunities, interesting projects, or just connecting with fellow developers.
+			</p>
+		</div>
+
+		<!-- Contact Methods -->
+		<div class="max-w-2xl mx-auto mb-20">
+			<div class="space-y-6">
+				<!-- Email -->
+				<div class="group">
+					<a
+						href="mailto:hello@martsokha.com"
+						class="flex items-center p-8 border border-neutral-200 dark:border-neutral-800 rounded-xl transition-all duration-200 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-md dark:hover:shadow-neutral-900/20"
+					>
+						<div class="flex items-center justify-center w-12 h-12 bg-neutral-100 dark:bg-neutral-800 rounded-lg mr-6 group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700 transition-colors">
+							<Mail client:load class="w-6 h-6 text-neutral-600 dark:text-neutral-400" />
+						</div>
+						<div class="flex-1">
+							<h3 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
+								Email
+							</h3>
+							<p class="text-lg text-neutral-600 dark:text-neutral-400">
+								hello@martsokha.com
+							</p>
+						</div>
+						<svg
+							class="w-5 h-5 text-neutral-400 dark:text-neutral-600 group-hover:text-neutral-600 dark:group-hover:text-neutral-400 transition-colors"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+							/>
+						</svg>
+					</a>
+				</div>
+
+				<!-- GitHub -->
+				<div class="group">
+					<a
+						href="https://github.com/martsokha"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="flex items-center p-8 border border-neutral-200 dark:border-neutral-800 rounded-xl transition-all duration-200 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-md dark:hover:shadow-neutral-900/20"
+					>
+						<div class="flex items-center justify-center w-12 h-12 bg-neutral-100 dark:bg-neutral-800 rounded-lg mr-6 group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700 transition-colors">
+							<Github client:load class="w-6 h-6 text-neutral-600 dark:text-neutral-400" />
+						</div>
+						<div class="flex-1">
+							<h3 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
+								GitHub
+							</h3>
+							<p class="text-lg text-neutral-600 dark:text-neutral-400">
+								@martsokha
+							</p>
+						</div>
+						<svg
+							class="w-5 h-5 text-neutral-400 dark:text-neutral-600 group-hover:text-neutral-600 dark:group-hover:text-neutral-400 transition-colors"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+							/>
+						</svg>
+					</a>
+				</div>
+
+				<!-- LinkedIn -->
+				<div class="group">
+					<a
+						href="https://linkedin.com/in/martsokha"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="flex items-center p-8 border border-neutral-200 dark:border-neutral-800 rounded-xl transition-all duration-200 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-md dark:hover:shadow-neutral-900/20"
+					>
+						<div class="flex items-center justify-center w-12 h-12 bg-neutral-100 dark:bg-neutral-800 rounded-lg mr-6 group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700 transition-colors">
+							<Linkedin client:load class="w-6 h-6 text-neutral-600 dark:text-neutral-400" />
+						</div>
+						<div class="flex-1">
+							<h3 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
+								LinkedIn
+							</h3>
+							<p class="text-lg text-neutral-600 dark:text-neutral-400">
+								/in/martsokha
+							</p>
+						</div>
+						<svg
+							class="w-5 h-5 text-neutral-400 dark:text-neutral-600 group-hover:text-neutral-600 dark:group-hover:text-neutral-400 transition-colors"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+							/>
+						</svg>
+					</a>
+				</div>
+			</div>
+		</div>
+
+		<!-- What I'm Looking For -->
+		<div class="max-w-3xl mx-auto mb-20">
+			<h2 class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-8 text-center">
+				What I'm Looking For
+			</h2>
+			<div class="grid md:grid-cols-3 gap-6">
+				<div class="text-center p-6">
+					<div class="w-12 h-12 bg-neutral-100 dark:bg-neutral-800 rounded-lg mx-auto mb-4 flex items-center justify-center">
+						<svg class="w-6 h-6 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6"></path>
+						</svg>
+					</div>
+					<h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-2">
+						Freelance Projects
+					</h3>
+					<p class="text-base text-neutral-600 dark:text-neutral-400">
+						Web development, consulting, and technical writing opportunities.
+					</p>
+				</div>
+
+				<div class="text-center p-6">
+					<div class="w-12 h-12 bg-neutral-100 dark:bg-neutral-800 rounded-lg mx-auto mb-4 flex items-center justify-center">
+						<svg class="w-6 h-6 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+						</svg>
+					</div>
+					<h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-2">
+						Collaborations
+					</h3>
+					<p class="text-base text-neutral-600 dark:text-neutral-400">
+						Open source contributions and interesting side projects.
+					</p>
+				</div>
+
+				<div class="text-center p-6">
+					<div class="w-12 h-12 bg-neutral-100 dark:bg-neutral-800 rounded-lg mx-auto mb-4 flex items-center justify-center">
+						<svg class="w-6 h-6 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+						</svg>
+					</div>
+					<h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-2">
+						Networking
+					</h3>
+					<p class="text-base text-neutral-600 dark:text-neutral-400">
+						Connecting with fellow developers and industry professionals.
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Response Time -->
+		<div class="max-w-2xl mx-auto text-center">
+			<div class="bg-neutral-50 dark:bg-neutral-900 rounded-xl p-8">
+				<p class="text-lg text-neutral-600 dark:text-neutral-400">
+					I typically respond within 24-48 hours. For urgent matters, please mention it in your subject line.
+				</p>
+			</div>
+		</div>
+	</div>
+</Layout>
