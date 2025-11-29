@@ -20,7 +20,7 @@ for building high-performance web scrapers with concurrent request handling,
 automatic retries, and structured data extraction. Integrates seamlessly with
 modern Gen AI systems.
 
-### Infrastructure Tools
+### Developer Tools
 
 Building type-safe Rust SDKs that simplify working with AI infrastructure:
 
