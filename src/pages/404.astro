@@ -6,54 +6,38 @@ const pageDescription = "The page you're looking for doesn't exist.";
 ---
 
 <Layout title={pageTitle} description={pageDescription}>
-	<div class="bg-white dark:bg-black min-h-screen">
-		<div class="container mx-auto px-4 py-24">
+	<div class="bg-white dark:bg-black w-full min-h-[60vh] flex items-center justify-center">
+		<div class="container mx-auto px-4">
 			<div class="max-w-2xl mx-auto text-center">
 				<!-- Large 404 -->
-				<h1 class="text-8xl md:text-9xl font-bold text-neutral-900 dark:text-white mb-6 leading-none">
+				<h1 class="text-7xl md:text-8xl font-bold text-neutral-900 dark:text-white mb-4 leading-none">
 					404
 				</h1>
 
 				<!-- Main heading -->
-				<h2 class="text-2xl md:text-3xl font-semibold text-neutral-900 dark:text-white mb-4">
+				<h2 class="text-xl md:text-2xl font-semibold text-neutral-900 dark:text-white mb-3">
 					Page Not Found
 				</h2>
 
 				<!-- Description -->
-				<p class="text-base md:text-lg text-neutral-600 dark:text-neutral-400 mb-12">
+				<p class="text-sm md:text-base text-neutral-600 dark:text-neutral-400 mb-8">
 					The page you're looking for doesn't exist or has been moved.
 				</p>
 
-				<!-- Action button -->
-				<div class="mb-16">
+				<!-- Action buttons -->
+				<div class="flex flex-col sm:flex-row gap-3 justify-center">
 					<a
 						href="/"
 						class="inline-flex items-center justify-center px-6 py-3 text-base bg-neutral-900 dark:bg-white text-white dark:text-black rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors font-medium"
 					>
 						← Back to Home
 					</a>
-				</div>
-
-				<!-- Helpful links -->
-				<div class="pt-8 border-t border-neutral-200 dark:border-neutral-800">
-					<p class="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-						Looking for something?
-					</p>
-					<div class="flex flex-wrap justify-center gap-4 text-sm">
-						<a
-							href="/"
-							class="text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition-colors"
-						>
-							Blog
-						</a>
-						<span class="text-neutral-400 dark:text-neutral-600">•</span>
-						<a
-							href="mailto:hello@martsokha.com"
-							class="text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition-colors"
-						>
-							Contact
-						</a>
-					</div>
+					<a
+						href="mailto:hello@martsokha.com"
+						class="inline-flex items-center justify-center px-6 py-3 text-base border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-white rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors font-medium"
+					>
+						Contact
+					</a>
 				</div>
 			</div>
 		</div>
