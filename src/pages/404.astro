@@ -5,7 +5,7 @@ const pageTitle = "Page Not Found";
 const pageDescription = "The page you're looking for doesn't exist.";
 ---
 
-<Layout title={pageTitle} description={pageDescription} hideNavigation={true}>
+<Layout title={pageTitle} description={pageDescription}>
 	<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 via-white to-neutral-100 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
 		<div class="container mx-auto px-4 max-w-4xl text-center">
 			<div class="max-w-2xl mx-auto">
@@ -33,29 +33,16 @@ const pageDescription = "The page you're looking for doesn't exist.";
 					>
 						← Back Home
 					</a>
-					<a
-						href="/blog"
-						class="inline-flex items-center justify-center px-8 py-4 text-lg border-2 border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-white rounded-lg hover:border-neutral-400 dark:hover:border-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all duration-200 font-semibold"
-					>
-						Read Blog
-					</a>
 				</div>
 
 				<!-- Helpful links -->
 				<div class="pt-8 border-t border-neutral-200 dark:border-neutral-800">
 					<p class="text-base text-neutral-600 dark:text-neutral-300 mb-4">
-						Looking for something specific? Try these:
+						Looking for something specific?
 					</p>
 					<div class="flex flex-wrap justify-center gap-4 text-sm">
 						<a
-							href="/projects"
-							class="text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white underline transition-colors"
-						>
-							Projects
-						</a>
-						<span class="text-neutral-400 dark:text-neutral-500">•</span>
-						<a
-							href="/blog"
+							href="/"
 							class="text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white underline transition-colors"
 						>
 							Writing

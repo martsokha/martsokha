@@ -3,11 +3,11 @@ import Avatar from "./Avatar.vue";
 import Socials from "./Socials.astro";
 ---
 
-<header class="bg-neutral-50 dark:bg-neutral-950 py-8">
+<header class="bg-neutral-50 dark:bg-black py-8 border-b border-neutral-200 dark:border-neutral-800">
 	<div class="container mx-auto px-4 max-w-4xl">
 		<div class="flex items-center justify-between">
 			<!-- Left side: Avatar + Name + Title -->
-			<div class="flex items-center gap-4 lg:gap-6">
+			<a href="/" class="flex items-center gap-4 lg:gap-6 hover:opacity-80 transition-opacity">
 				<Avatar
 					client:load
 					src="/avatar.jpg"
@@ -24,7 +24,7 @@ import Socials from "./Socials.astro";
 						Software Engineer & Creator
 					</p>
 				</div>
-			</div>
+			</a>
 
 			<!-- Right side: Social links -->
 			<div class="flex items-center flex-shrink-0">

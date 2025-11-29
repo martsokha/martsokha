@@ -1,5 +1,5 @@
 ---
-import { Instagram, Mail } from "lucide-vue-next";
+import { Mail } from "lucide-vue-next";
 // Import SVG icons
 import BlueskyIcon from "@/assets/icons/bluesky.svg?raw";
 import GitHubIcon from "@/assets/icons/github.svg?raw";
@@ -19,16 +19,6 @@ const padding = variant === "compact" ? "p-2" : "p-3";
 ---
 
 <div class={`flex items-center space-x-2 ${className}`}>
-	<a
-		href={SOCIAL_LINKS.instagram}
-		target="_blank"
-		rel="noopener noreferrer"
-		class={`${padding} text-neutral-700 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800`}
-		aria-label="Instagram"
-	>
-		<Instagram client:load class={iconSize} />
-	</a>
-
 	<a
 		href={SOCIAL_LINKS.bluesky}
 		target="_blank"

@@ -2,9 +2,28 @@ name: CI/CD
 
 on:
   push:
-    branches: [main]
+    branches:
+      - "main"
+    paths:
+      - "src/**"
+      - "public/**"
+      - "package.json"
+      - "package-lock.json"
+      - "astro.config.mjs"
+      - "tsconfig.json"
+      - "tailwind.config.mjs"
+      - ".github/workflows/build.yml"
   pull_request:
-    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "package.json"
+      - "package-lock.json"
+      - "astro.config.mjs"
+      - "tsconfig.json"
+      - "tailwind.config.mjs"
+      - ".github/workflows/build.yml"
+  workflow_dispatch:
 
 jobs:
   lint-and-type-check:

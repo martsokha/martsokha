@@ -1,7 +1,6 @@
 ---
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
-import Navigation from "@/components/Navigation.astro";
 import {
 	BUILD_VERSION,
 	DEFAULT_AUTHOR,
@@ -12,39 +11,17 @@ import {
 import MinLayout from "@/layouts/MinLayout.astro";
 import Umami from "@/layouts/Umami.astro";
 
-/**
- * Props interface for the main Layout component
- *
- * This layout provides a complete page structure with header, footer,
- * and analytics components wrapped around the main content.
- */
 export interface Props {
-	/** Page title (will be combined with site title if withDefaultTitle is true) */
 	title?: string;
-	/** Meta description for SEO */
 	description?: string;
-	/** Build version to display */
 	version?: string;
-	/** Whether to append the default site title to the page title */
 	withDefaultTitle?: boolean;
-	/** Open Graph image URL for social media sharing */
 	image?: string;
-	/** Whether this page represents an article (affects structured data) */
 	article?: boolean;
-	/** Article published timestamp (ISO 8601 format) */
 	publishedTime?: string;
-	/** Article modified timestamp (ISO 8601 format) */
 	modifiedTime?: string;
-	/** Article author name */
 	author?: string;
-	/** SEO keywords (comma-separated) */
 	keywords?: string;
-	/** Whether to hide the site header */
-	hideHeader?: boolean;
-	/** Whether to hide the site footer */
-	hideFooter?: boolean;
-	/** Whether to hide the site navigation */
-	hideNavigation?: boolean;
 }
 
 const {
@@ -58,9 +35,6 @@ const {
 	modifiedTime,
 	author = DEFAULT_AUTHOR,
 	keywords,
-	hideHeader = false,
-	hideFooter = false,
-	hideNavigation = false,
 } = Astro.props;
 ---
 
@@ -79,26 +53,16 @@ const {
 	<Umami slot="analytics" />
 
 	<div slot="content" class="flex flex-col min-h-screen">
-		{!hideHeader && (
-			<header role="banner" class="shrink-0">
-				<Header />
-			</header>
-		)}
-
-		{!hideHeader && !hideNavigation && (
-			<nav role="navigation" class="shrink-0">
-				<Navigation />
-			</nav>
-		)}
+		<header role="banner" class="shrink-0">
+			<Header />
+		</header>
 
 		<main id="main-content" role="main" class="flex-1 w-full" tabindex="-1">
 			<slot />
 		</main>
 
-		{!hideFooter && (
-			<footer role="contentinfo" class="shrink-0">
-				<Footer />
-			</footer>
-		)}
+		<footer role="contentinfo" class="shrink-0">
+			<Footer />
+		</footer>
 	</div>
 </MinLayout>

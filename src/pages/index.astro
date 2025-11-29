@@ -1,30 +1,113 @@
 ---
 import { Layout } from "@/layouts";
+import { calculateReadingTime } from "@/utils/content";
+import { getCollection } from "astro:content";
+import {
+	File,
+	Zap,
+	Code,
+	Palette,
+	Building,
+	FileText,
+	Shield,
+} from "lucide-vue-next";
 
-const pageTitle = "Oleh Martsokha";
-const pageDescription =
-	"Software engineer passionate about building exceptional digital experiences and exploring new technologies.";
+// Get all blog entries and sort by publishedAt (newest first)
+const blogEntries = (await getCollection("posts"))
+	.map((entry) => ({
+		...entry,
+		readingTime: calculateReadingTime(entry.body),
+	}))
+	.sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
 ---
 
-<Layout title={pageTitle} description={pageDescription}>
-	<!-- Hero Section -->
-	<div class="py-24 flex items-center justify-center">
-		<div class="container mx-auto px-4 max-w-4xl text-center">
-			<h1 class="text-5xl md:text-6xl font-bold text-black dark:text-white mb-8 leading-tight">
-				Hey, I'm Oleh
-			</h1>
-			<div class="prose prose-lg max-w-none text-neutral-800 dark:text-neutral-300 leading-relaxed mx-auto">
-				<p class="text-xl mb-6">
-					I'm a software engineer who loves crafting digital experiences that matter.
-					When I'm not coding, you'll find me exploring new technologies, sharing insights,
-					or diving into creative projects.
-				</p>
-				<p class="text-xl">
-					I believe in the power of community and sharing knowledge.
-					That's why I write about my experiences, contribute to open source,
-					and connect with fellow creators and engineers.
-				</p>
-			</div>
-		</div>
-	</div>
+<Layout title="Blog" description="Insights, stories, and updates from our team">
+  <div class="bg-white dark:bg-black min-h-screen">
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-12">
+
+
+      <!-- Posts Grid -->
+      <div class="max-w-7xl mx-auto">
+        {blogEntries.length > 0 ? (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {blogEntries.map((post, index) => (
+              <article class="group transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
+                <a href={`/${post.slug}`} class="block h-full">
+                  <div class="bg-white dark:bg-black rounded-xl overflow-hidden border border-gray-200 dark:border-neutral-700 hover:border-gray-300 dark:hover:border-neutral-600 h-full flex flex-col min-h-[400px]">
+                    <!-- Image/Icon Area -->
+                    <div class="aspect-[4/3] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-neutral-800 dark:to-neutral-900 flex items-center justify-center relative overflow-hidden">
+                      <div class="text-gray-400 dark:text-neutral-500">
+                        {post.data.category === 'Engineering' && <Zap class="w-16 h-16" client:load />}
+                        {post.data.category === 'Development' && <Code class="w-16 h-16" client:load />}
+                        {post.data.category === 'Design' && <Palette class="w-16 h-16" client:load />}
+                        {post.data.category === 'Architecture' && <Building class="w-16 h-16" client:load />}
+                        {post.data.category === 'Compliance' && <Shield class="w-16 h-16" client:load />}
+                        {post.data.category === 'Case Study' && <FileText class="w-16 h-16" client:load />}
+                        {!post.data.category && <File class="w-16 h-16" client:load />}
+                      </div>
+
+                      <!-- Latest Badge - only for first post -->
+                      {index === 0 && (
+                        <div class="absolute top-3 left-3">
+                          <span class="text-xs font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 px-3 py-1 rounded-full shadow-lg">
+                            Latest
+                          </span>
+                        </div>
+                      )}
+
+                      <!-- Category Badge -->
+                      {post.data.category && (
+                        <div class="absolute top-3 right-3">
+                          <span class="text-xs font-medium text-gray-600 dark:text-neutral-400 bg-white/90 dark:bg-black/90 backdrop-blur-sm px-2 py-1 rounded border dark:border-neutral-700">
+                            {post.data.category}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex-grow flex flex-col p-5">
+                      <!-- Meta Info -->
+                      <div class="flex items-center gap-2 mb-3 text-gray-500 dark:text-neutral-400 text-xs">
+                        <span>
+                          {new Date(post.data.publishedAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </span>
+                        <span class="text-gray-300 dark:text-neutral-600">•</span>
+                        <span>{post.readingTime} min read</span>
+                      </div>
+
+                      <!-- Title -->
+                      <h3 class="font-light text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-base leading-snug line-clamp-2">
+                        {post.data.title}
+                      </h3>
+
+                      <!-- Excerpt -->
+                      <p class="text-gray-600 dark:text-neutral-300 leading-relaxed flex-grow text-sm line-clamp-3">
+                        {post.data.excerpt || post.data.description}
+                      </p>
+                    </div>
+                  </div>
+                </a>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div class="text-center py-20">
+            <div class="w-20 h-20 bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-6 text-neutral-400 dark:text-neutral-500">
+              <File class="w-4 h-4" client:load />
+            </div>
+            <h3 class="text-xl font-light text-gray-900 dark:text-white mb-2">No blog posts found</h3>
+            <p class="text-gray-500 dark:text-neutral-400">Blog posts will appear here once they are published.</p>
+          </div>
+        )}
+      </div>
+    </div>
+
+
+  </div>
 </Layout>

@@ -15,21 +15,23 @@ const srcPath = fileURLToPath(srcImport);
 
 // https://astro.build/config
 export default defineConfig({
-	site: "https://martsokha.com",
-	integrations: [vue({ devtools: true }), sitemap(), mdx()],
+  site: "https://martsokha.com",
+  integrations: [vue({ devtools: true }), sitemap(), mdx()],
 
-	markdown: {
-		shikiConfig: {
-			themes: {
-				light: "github-light-default",
-				dark: "github-dark-default",
-			},
-			transformers: [],
-		},
-	},
+  markdown: {
+    shikiConfig: {
+      defaultColor: "light",
+      themes: {
+        light: "catppuccin-latte",
+        dark: "aurora-x",
+      },
+      wrap: true,
+      transformers: [],
+    },
+  },
 
-	vite: {
-		plugins: [tailwindcss()],
-		resolve: { alias: { "@": srcPath } },
-	},
+  vite: {
+    plugins: [tailwindcss()],
+    resolve: { alias: { "@": srcPath } },
+  },
 });

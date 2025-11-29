@@ -97,9 +97,8 @@ const structuredData = {
 		<link rel="dns-prefetch" href="https://cloud.umami.is" />
 
 		<!-- Theme and Appearance -->
-		<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-		<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
-		<meta name="color-scheme" content="light dark" />
+		<meta name="color-scheme" content="light dark"/>
+		<meta name="theme-color" content="#ffffff"/>
 
 		<!-- Favicon and Icons -->
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -193,7 +192,7 @@ const structuredData = {
 		<!-- Analytics -->
 		<slot name="analytics" />
 	</head>
-	<body class="bg-white dark:bg-black antialiased">
+	<body class="transition-all duration-75 bg-white dark:bg-black antialiased">
 	    <!-- Content Components -->
 		<slot name="content" />
 
