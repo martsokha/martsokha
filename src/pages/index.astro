@@ -2,15 +2,7 @@
 import { Layout } from "@/layouts";
 import { calculateReadingTime } from "@/utils/content";
 import { getCollection } from "astro:content";
-import {
-	File,
-	Zap,
-	Code,
-	Palette,
-	Building,
-	FileText,
-	Shield,
-} from "lucide-vue-next";
+import { File, Zap, Code, Palette, Building, FileText, Shield } from "lucide-vue-next";
 
 // Get all blog entries and sort by publishedAt (newest first)
 const blogEntries = (await getCollection("posts"))

@@ -44,14 +44,11 @@ const allPosts = (await getCollection("posts")).sort(
 
 // Find current post index for navigation
 const currentIndex = allPosts.findIndex((post) => post.slug === entry.slug);
-const previousPost =
-	currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
+const previousPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
 const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
 
 // Related posts (most recent posts, excluding current post)
-const relatedPosts = allPosts
-	.filter((post) => post.slug !== entry.slug)
-	.slice(0, 3);
+const relatedPosts = allPosts.filter((post) => post.slug !== entry.slug).slice(0, 3);
 ---
 
 <Layout title={entry.data.title} description={entry.data.description}>

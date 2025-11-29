@@ -5,65 +5,63 @@ import { onMounted, ref } from "vue";
 const isDark = ref(false);
 
 const toggleTheme = () => {
-  try {
-    isDark.value = !isDark.value;
+	try {
+		isDark.value = !isDark.value;
 
-    // Force remove any existing theme classes first
-    document.documentElement.classList.remove("dark", "light");
+		// Force remove any existing theme classes first
+		document.documentElement.classList.remove("dark", "light");
 
-    if (isDark.value) {
-      document.documentElement.classList.add("dark");
-      document.documentElement.setAttribute("data-theme", "dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.add("light");
-      document.documentElement.setAttribute("data-theme", "light");
-      localStorage.setItem("theme", "light");
-    }
-  } catch (error) {
-    console.error("Theme toggle error:", error);
-    // Fallback to light mode on error
-    isDark.value = false;
-    document.documentElement.classList.remove("dark");
-    document.documentElement.classList.add("light");
-    document.documentElement.setAttribute("data-theme", "light");
-    localStorage.setItem("theme", "light");
-  }
+		if (isDark.value) {
+			document.documentElement.classList.add("dark");
+			document.documentElement.setAttribute("data-theme", "dark");
+			localStorage.setItem("theme", "dark");
+		} else {
+			document.documentElement.classList.add("light");
+			document.documentElement.setAttribute("data-theme", "light");
+			localStorage.setItem("theme", "light");
+		}
+	} catch (error) {
+		console.error("Theme toggle error:", error);
+		// Fallback to light mode on error
+		isDark.value = false;
+		document.documentElement.classList.remove("dark");
+		document.documentElement.classList.add("light");
+		document.documentElement.setAttribute("data-theme", "light");
+		localStorage.setItem("theme", "light");
+	}
 };
 
 onMounted(() => {
-  try {
-    // Check for saved theme preference or default to system preference
-    const savedTheme = localStorage.getItem("theme");
-    const systemPrefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    ).matches;
+	try {
+		// Check for saved theme preference or default to system preference
+		const savedTheme = localStorage.getItem("theme");
+		const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-    const shouldBeDark = savedTheme ? savedTheme === "dark" : systemPrefersDark;
+		const shouldBeDark = savedTheme ? savedTheme === "dark" : systemPrefersDark;
 
-    // Force remove any existing theme classes first
-    document.documentElement.classList.remove("dark", "light");
+		// Force remove any existing theme classes first
+		document.documentElement.classList.remove("dark", "light");
 
-    if (shouldBeDark) {
-      isDark.value = true;
-      document.documentElement.classList.add("dark");
-      document.documentElement.setAttribute("data-theme", "dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      isDark.value = false;
-      document.documentElement.classList.add("light");
-      document.documentElement.setAttribute("data-theme", "light");
-      localStorage.setItem("theme", "light");
-    }
-  } catch (error) {
-    console.error("Theme initialization error:", error);
-    // Fallback to light mode on error
-    isDark.value = false;
-    document.documentElement.classList.remove("dark");
-    document.documentElement.classList.add("light");
-    document.documentElement.setAttribute("data-theme", "light");
-    localStorage.setItem("theme", "light");
-  }
+		if (shouldBeDark) {
+			isDark.value = true;
+			document.documentElement.classList.add("dark");
+			document.documentElement.setAttribute("data-theme", "dark");
+			localStorage.setItem("theme", "dark");
+		} else {
+			isDark.value = false;
+			document.documentElement.classList.add("light");
+			document.documentElement.setAttribute("data-theme", "light");
+			localStorage.setItem("theme", "light");
+		}
+	} catch (error) {
+		console.error("Theme initialization error:", error);
+		// Fallback to light mode on error
+		isDark.value = false;
+		document.documentElement.classList.remove("dark");
+		document.documentElement.classList.add("light");
+		document.documentElement.setAttribute("data-theme", "light");
+		localStorage.setItem("theme", "light");
+	}
 });
 </script>
 

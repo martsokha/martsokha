@@ -1,36 +1,19 @@
-# Hey, I'm Oleh 👋
+# Oleh Martsokha
 
-Software engineer passionate about building elegant solutions to complex problems. I focus on creating well-architected systems with clean, maintainable code.
+Software engineer focused on building elegant solutions to complex problems. I'm particularly interested in artificial intelligence, Rust web development, and modern web technologies.
 
-## 🛠️ Tech Stack
+## What I'm Working On
 
-**Languages & Frameworks:**
-- TypeScript, JavaScript, Node.js
-- React, Vue.js, Astro
-- PostgreSQL, MongoDB, Redis
+- Exploring AI/ML applications and integration patterns
+- Building high-performance web applications with Rust
+- Developing modern web applications with focus on performance and user experience
 
-**Tools & Platforms:**
-- Docker, GitHub Actions
-- Tailwind CSS, Vite
-- Git, Linux/Unix
-
-## 🚀 What I'm Working On
-
-- Building my personal website with Astro and modern web technologies
-- Exploring full-stack development with a focus on performance and UX
-- Learning system design and scalable architecture patterns
-
-## 📫 Get in Touch
+## Connect
 
 - Website: [martsokha.com](https://martsokha.com)
 - Email: hello@martsokha.com
 - LinkedIn: [linkedin.com/in/martsokha](https://linkedin.com/in/martsokha)
 
-## 📝 Latest Blog Posts
+## Recent Writing
 
-<!-- BLOG-POST-LIST:START -->
-<!-- BLOG-POST-LIST:END -->
-
----
-
-💡 *Always learning, always building.*
+Visit [martsokha.com](https://martsokha.com) for my latest articles on software engineering, architecture, and development practices.
