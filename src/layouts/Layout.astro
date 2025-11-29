@@ -1,20 +1,13 @@
 ---
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
-import {
-	BUILD_VERSION,
-	DEFAULT_AUTHOR,
-	DEFAULT_DESCRIPTION,
-	DEFAULT_OG_IMAGE,
-	DEFAULT_TITLE,
-} from "@/config";
+import { DEFAULT_AUTHOR, DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE, DEFAULT_TITLE } from "@/config";
 import MinLayout from "@/layouts/MinLayout.astro";
 import Umami from "@/layouts/Umami.astro";
 
 export interface Props {
 	title?: string;
 	description?: string;
-	version?: string;
 	withDefaultTitle?: boolean;
 	image?: string;
 	article?: boolean;
@@ -27,7 +20,6 @@ export interface Props {
 const {
 	title = DEFAULT_TITLE,
 	description = DEFAULT_DESCRIPTION,
-	version = BUILD_VERSION,
 	withDefaultTitle = true,
 	image = DEFAULT_OG_IMAGE,
 	article,
@@ -41,7 +33,6 @@ const {
 <MinLayout
 	title={title}
 	description={description}
-	version={version}
 	withDefaultTitle={withDefaultTitle}
 	{...(image && { image })}
 	{...(article && { article })}

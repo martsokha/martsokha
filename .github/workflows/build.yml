@@ -9,9 +9,8 @@ on:
       - "public/**"
       - "package.json"
       - "package-lock.json"
-      - "astro.config.mjs"
+      - "astro.config.ts"
       - "tsconfig.json"
-      - "tailwind.config.mjs"
       - ".github/workflows/build.yml"
   pull_request:
     paths:
@@ -19,9 +18,8 @@ on:
       - "public/**"
       - "package.json"
       - "package-lock.json"
-      - "astro.config.mjs"
+      - "astro.config.ts"
       - "tsconfig.json"
-      - "tailwind.config.mjs"
       - ".github/workflows/build.yml"
   workflow_dispatch:
 
@@ -47,7 +45,6 @@ jobs:
 
       - name: Run linter
         run: npm run lint
-        continue-on-error: true
 
   build:
     name: Build
@@ -94,4 +91,3 @@ jobs:
 
       - name: Run tests
         run: npm test
-        continue-on-error: true

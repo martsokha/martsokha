@@ -1,34 +1,36 @@
 /**
- * Site Configuration
- *
- * Central configuration file for site-wide constants and settings.
- * This file contains default values used across layouts, components, and pages.
+ * Default site title used across pages
  */
-
-/** Default site title used in meta tags and page titles */
 export const DEFAULT_TITLE = "Oleh Martsokha";
 
-/** Default meta description for SEO and social media sharing */
+/**
+ * Default meta description for SEO
+ */
 export const DEFAULT_DESCRIPTION =
-	"Software engineer passionate about building exceptional digital experiences. Thoughts on development, design, and technology.";
+	"Software engineer focused on AI infrastructure and data tooling. Writing about web development, and system design.";
 
-/** Default author name for articles and structured data */
+/**
+ * Default author name for content attribution
+ */
 export const DEFAULT_AUTHOR = "Oleh Martsokha";
 
-/** Build version displayed in meta tags for cache busting and debugging */
-export const BUILD_VERSION = "1.0.0";
-
-/** Site URL (used for canonical URLs and structured data) */
-export const SITE_URL = "https://martsokha.com";
-
-/** Default Open Graph image path (relative to public directory) */
+/**
+ * Default Open Graph image for social media sharing
+ */
 export const DEFAULT_OG_IMAGE = "/og-image.jpg";
 
-/** Social media links configuration */
+/**
+ * Social media and contact links
+ */
 export const SOCIAL_LINKS = {
-	instagram: "https://instagram.com/martsokha",
 	bluesky: "https://bsky.app/profile/martsokha.com",
 	linkedin: "https://linkedin.com/in/martsokha",
 	github: "https://github.com/martsokha",
 	email: "hello@martsokha.com",
 } as const;
+
+/**
+ * Umami analytics configuration
+ */
+export const UMAMI_WEBSITE_ID =
+	import.meta.env.PUBLIC_UMAMI_WEBSITE_ID || "807fdb95-0a30-4563-8239-876c35e25a5a";

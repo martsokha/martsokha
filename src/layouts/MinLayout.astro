@@ -1,12 +1,5 @@
 ---
-import {
-	BUILD_VERSION,
-	DEFAULT_AUTHOR,
-	DEFAULT_DESCRIPTION,
-	DEFAULT_OG_IMAGE,
-	DEFAULT_TITLE,
-	SITE_URL,
-} from "@/config";
+import { DEFAULT_AUTHOR, DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE, DEFAULT_TITLE } from "@/config";
 
 import "@/assets/styles/font.css";
 import "@/assets/styles/markdown.css";
@@ -24,8 +17,6 @@ export interface Props {
 	title?: string;
 	/** Meta description for SEO and social media sharing */
 	description?: string;
-	/** Build version to display in meta tags */
-	version?: string;
 	/** Whether to append the default site title to the page title */
 	withDefaultTitle?: boolean;
 	/** Open Graph image URL for social media sharing */
@@ -45,7 +36,6 @@ export interface Props {
 const {
 	title = DEFAULT_TITLE,
 	description = DEFAULT_DESCRIPTION,
-	version = BUILD_VERSION,
 	withDefaultTitle = true,
 	image = DEFAULT_OG_IMAGE,
 	article = false,
@@ -55,9 +45,9 @@ const {
 	keywords,
 } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname, Astro.site || SITE_URL).toString();
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
 const pageTitle = withDefaultTitle ? `${title} · ${DEFAULT_TITLE}` : title;
-const fullImageUrl = new URL(image, Astro.site || SITE_URL).toString();
+const fullImageUrl = new URL(image, Astro.site).toString();
 
 // Generate structured data
 const structuredData = {
@@ -70,12 +60,12 @@ const structuredData = {
 	author: {
 		"@type": "Organization",
 		name: author,
-		url: Astro.site?.toString() || SITE_URL,
+		url: Astro.site?.toString(),
 	},
 	publisher: {
 		"@type": "Organization",
 		name: DEFAULT_TITLE,
-		url: Astro.site?.toString() || SITE_URL,
+		url: Astro.site?.toString(),
 	},
 	...(publishedTime && { datePublished: publishedTime }),
 	...(modifiedTime && { dateModified: modifiedTime }),
@@ -89,7 +79,6 @@ const structuredData = {
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 		<meta name="generator" content={Astro.generator} />
-		<meta name="version" content={version} />
 
 		<!-- Performance Optimizations -->
 		<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -140,59 +129,96 @@ const structuredData = {
 		<script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 
 		<!-- Dark Mode Initialization (prevent flash) -->
-		<script is:inline>
-			(function() {
+		<script>
+			interface ThemeDebugInfo {
+				stored: string | null;
+				prefersDark: boolean;
+				shouldBeDark: boolean;
+				currentClasses: string;
+			}
+
+			interface ThemeAppliedInfo {
+				finalTheme: 'dark' | 'light';
+				finalClasses: string;
+			}
+
+			function getThemePreference(): boolean {
+				const stored = localStorage.getItem('theme');
+				const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+				return stored ? stored === 'dark' : prefersDark;
+			}
+
+			function updateThemeColor(isDark: boolean): void {
+				const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+				if (metaThemeColor) {
+					metaThemeColor.setAttribute('content', isDark ? '#000000' : '#ffffff');
+				}
+			}
+
+			function applyTheme(isDark: boolean): void {
+				document.documentElement.classList.remove('dark', 'light');
+				const theme = isDark ? 'dark' : 'light';
+
+				document.documentElement.classList.add(theme);
+				document.documentElement.setAttribute('data-theme', theme);
+				updateThemeColor(isDark);
+				localStorage.setItem('theme', theme);
+			}
+
+			function logThemeDebug(info: ThemeDebugInfo | ThemeAppliedInfo): void {
+				const debugMode = localStorage.getItem('debug-theme') === 'true';
+				if (debugMode) {
+					console.log('Theme Debug:', info);
+				}
+			}
+
+			function observeThemeChanges(): void {
+				const observer = new MutationObserver((mutations) => {
+					mutations.forEach((mutation) => {
+						if (mutation.attributeName === 'class') {
+							const isDark = document.documentElement.classList.contains('dark');
+							updateThemeColor(isDark);
+						}
+					});
+				});
+
+				observer.observe(document.documentElement, {
+					attributes: true,
+					attributeFilter: ['class']
+				});
+			}
+
+			function initializeTheme(): void {
 				try {
-					// Debug logging for development
-					const debugMode = localStorage.getItem('debug-theme') === 'true';
+					const shouldBeDark = getThemePreference();
 
-					const stored = localStorage.getItem('theme');
-					const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-					const shouldBeDark = stored ? stored === 'dark' : prefersDark;
+					logThemeDebug({
+						stored: localStorage.getItem('theme'),
+						prefersDark: window.matchMedia('(prefers-color-scheme: dark)').matches,
+						shouldBeDark,
+						currentClasses: document.documentElement.className
+					});
 
-					if (debugMode) {
-						console.log('Theme Debug:', {
-							stored,
-							prefersDark,
-							shouldBeDark,
-							currentClasses: document.documentElement.className
-						});
-					}
+					applyTheme(shouldBeDark);
+					observeThemeChanges();
 
-					// Force remove any existing theme classes first
-					document.documentElement.classList.remove('dark', 'light');
-
-					if (shouldBeDark) {
-						document.documentElement.classList.add('dark');
-						document.documentElement.setAttribute('data-theme', 'dark');
-					} else {
-						document.documentElement.classList.add('light');
-						document.documentElement.setAttribute('data-theme', 'light');
-					}
-
-					// Store the theme for consistency
-					localStorage.setItem('theme', shouldBeDark ? 'dark' : 'light');
-
-					if (debugMode) {
-						console.log('Theme Applied:', {
-							finalTheme: shouldBeDark ? 'dark' : 'light',
-							finalClasses: document.documentElement.className
-						});
-					}
+					logThemeDebug({
+						finalTheme: shouldBeDark ? 'dark' : 'light',
+						finalClasses: document.documentElement.className
+					});
 				} catch (error) {
 					console.error('Theme initialization error:', error);
-					// Fallback to light mode on error
-					document.documentElement.classList.remove('dark');
-					document.documentElement.classList.add('light');
-					document.documentElement.setAttribute('data-theme', 'light');
+					applyTheme(false);
 				}
-			})();
+			}
+
+			initializeTheme();
 		</script>
 
 		<!-- Analytics -->
 		<slot name="analytics" />
 	</head>
-	<body class="transition-all duration-75 bg-white dark:bg-black antialiased">
+	<body class="bg-white dark:bg-black antialiased min-h-screen">
 	    <!-- Content Components -->
 		<slot name="content" />
 
