@@ -1,0 +1,61 @@
+---
+import { Mail } from "lucide-vue-next";
+// Import SVG icons
+import BlueskyIcon from "@/assets/icons/bluesky.svg?raw";
+import GitHubIcon from "@/assets/icons/github.svg?raw";
+import LinkedInIcon from "@/assets/icons/linkedin.svg?raw";
+import { SOCIAL_LINKS } from "@/config";
+
+export interface Props {
+	variant?: "default" | "compact";
+	showEmail?: boolean;
+	class?: string;
+}
+
+const { variant = "default", showEmail = true, class: className = "" } = Astro.props;
+
+const iconSize = variant === "compact" ? "w-5 h-5" : "w-6 h-6";
+const padding = variant === "compact" ? "p-2" : "p-3";
+---
+
+<div class={`flex items-center space-x-2 ${className}`}>
+	<a
+		href={SOCIAL_LINKS.bluesky}
+		target="_blank"
+		rel="noopener noreferrer"
+		class={`${padding} text-neutral-700 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800`}
+		aria-label="Bluesky"
+	>
+		<div class={iconSize} set:html={BlueskyIcon} />
+	</a>
+
+	<a
+		href={SOCIAL_LINKS.linkedin}
+		target="_blank"
+		rel="noopener noreferrer"
+		class={`${padding} text-neutral-700 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800`}
+		aria-label="LinkedIn"
+	>
+		<div class={iconSize} set:html={LinkedInIcon} />
+	</a>
+
+	<a
+		href={SOCIAL_LINKS.github}
+		target="_blank"
+		rel="noopener noreferrer"
+		class={`${padding} text-neutral-700 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800`}
+		aria-label="GitHub"
+	>
+		<div class={iconSize} set:html={GitHubIcon} />
+	</a>
+
+	{showEmail && (
+		<a
+			href={`mailto:${SOCIAL_LINKS.email}`}
+			class={`${padding} text-neutral-700 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800`}
+			aria-label="Email"
+		>
+			<Mail client:load class={iconSize} />
+		</a>
+	)}
+</div>

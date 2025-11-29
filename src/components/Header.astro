@@ -1,0 +1,35 @@
+---
+import Avatar from "./Avatar.vue";
+import Socials from "./Socials.astro";
+---
+
+<header class="bg-neutral-50 dark:bg-black py-8 border-b border-neutral-200 dark:border-neutral-800">
+	<div class="container mx-auto px-4 max-w-4xl">
+		<div class="flex items-center justify-between">
+			<!-- Left side: Avatar + Name + Title -->
+			<a href="/" class="flex items-center gap-4 lg:gap-6 hover:opacity-80 transition-opacity">
+				<Avatar
+					client:load
+					src="/avatar.jpg"
+					alt="Oleh Martsokha"
+					fallbackText="OM"
+					size="size-12 sm:size-16"
+				/>
+
+				<div class="flex flex-col min-w-0 flex-1">
+					<h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100 truncate">
+						Oleh Martsokha
+					</h1>
+					<p class="text-sm sm:text-base text-neutral-700 dark:text-neutral-300 truncate">
+						Software Engineer & Creator
+					</p>
+				</div>
+			</a>
+
+			<!-- Right side: Social links -->
+			<div class="flex items-center flex-shrink-0">
+				<Socials variant="compact" showEmail={false} />
+			</div>
+		</div>
+	</div>
+</header>
