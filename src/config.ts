@@ -33,4 +33,4 @@ export const SOCIAL_LINKS = {
  * Umami analytics configuration
  */
 export const UMAMI_WEBSITE_ID =
-	import.meta.env.PUBLIC_UMAMI_WEBSITE_ID || "af19adf2-bb53-4bd9-aaf9-369b9e16c88d";
+	import.meta.env.PUBLIC_UMAMI_WEBSITE_ID || "807fdb95-0a30-4563-8239-876c35e25a5a";
