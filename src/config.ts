@@ -28,3 +28,9 @@ export const SOCIAL_LINKS = {
 	github: "https://github.com/martsokha",
 	email: "hello@martsokha.com",
 } as const;
+
+/**
+ * Umami analytics configuration
+ */
+export const UMAMI_WEBSITE_ID =
+	import.meta.env.PUBLIC_UMAMI_WEBSITE_ID || "af19adf2-bb53-4bd9-aaf9-369b9e16c88d";

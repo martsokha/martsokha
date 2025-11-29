@@ -1,9 +1,13 @@
 ---
+import { UMAMI_WEBSITE_ID } from "@/config";
+
 /**
  * Umami Analytics Component
  *
  * Integrates Umami analytics tracking script into the application.
  * Umami is a privacy-focused, open-source analytics platform.
+ *
+ * Set PUBLIC_UMAMI_WEBSITE_ID environment variable to override the default website ID.
  *
  * @see https://umami.is
  * @see https://umami.is/docs
@@ -22,15 +26,13 @@ export interface Props {
 
 	/**
 	 * Unique website identifier for Umami tracking
-	 * @default "af19adf2-bb53-4bd9-aaf9-369b9e16c88d"
+	 * Can be overridden via PUBLIC_UMAMI_WEBSITE_ID environment variable
 	 */
 	websiteId?: string;
 }
 
-const {
-	scriptUrl = "https://cloud.umami.is/script.js",
-	websiteId = "af19adf2-bb53-4bd9-aaf9-369b9e16c88d",
-} = Astro.props;
+const { scriptUrl = "https://cloud.umami.is/script.js", websiteId = UMAMI_WEBSITE_ID } =
+	Astro.props;
 ---
 <script is:inline
     src={scriptUrl}
