@@ -1,19 +1,19 @@
-# Oleh Martsokha
+# Hi!
 
-Software engineer focused on building elegant solutions to complex problems. I'm particularly interested in artificial intelligence, Rust web development, and modern web technologies.
+Software engineer focused on AI infrastructure and data tooling. Most of my work
+involves Rust web development and building developer tools.
 
 ## What I'm Working On
 
-- Exploring AI/ML applications and integration patterns
-- Building high-performance web applications with Rust
-- Developing modern web applications with focus on performance and user experience
+**AI SDKs** - Building developer tools for
+[RunPod](https://github.com/martsokha/runpod) (GPU compute) and
+[Portkey](https://github.com/martsokha/portkey) (AI gateway) to simplify AI
+integration.
 
-## Connect
+**Privacy Tools** - Working on [Nvisy](https://github.com/nvisycom/server), an
+open-source redaction platform with a Rust backend and Vue.js
+[desktop application](https://github.com/nvisycom/desktop).
 
-- Website: [martsokha.com](https://martsokha.com)
-- Email: hello@martsokha.com
-- LinkedIn: [linkedin.com/in/martsokha](https://linkedin.com/in/martsokha)
-
-## Recent Writing
-
-Visit [martsokha.com](https://martsokha.com) for my latest articles on software engineering, architecture, and development practices.
+**Data Infrastructure** - Maintaining
+[Spire](https://github.com/spire-rs/spire), a Rust-based toolkit for
+high-performance data scraping.

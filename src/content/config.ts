@@ -1,5 +1,5 @@
 import { defineCollection, z } from "astro:content";
-import { validateSingleWordTags, validateNotFutureDate } from "./validation";
+import { validateNotFutureDate, validateSingleWordTags } from "./validation";
 
 const posts = defineCollection({
 	type: "content",
