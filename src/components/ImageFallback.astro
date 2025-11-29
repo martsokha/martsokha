@@ -1,0 +1,29 @@
+---
+import { Zap, Code, Palette, Building, FileText, Shield, File } from "lucide-vue-next";
+
+export interface Props {
+	category?: string;
+	size?: "sm" | "md" | "lg";
+	class?: string;
+}
+
+const { category, size = "md", class: className = "" } = Astro.props;
+
+const iconSizes = {
+	sm: "w-12 h-12",
+	md: "w-16 h-16",
+	lg: "w-20 h-20",
+};
+
+const iconClass = iconSizes[size];
+---
+
+<div class={`text-gray-400 dark:text-neutral-500 ${className}`}>
+	{category === "Engineering" && <Zap class={iconClass} client:load />}
+	{category === "Development" && <Code class={iconClass} client:load />}
+	{category === "Design" && <Palette class={iconClass} client:load />}
+	{category === "Architecture" && <Building class={iconClass} client:load />}
+	{category === "Compliance" && <Shield class={iconClass} client:load />}
+	{category === "Case Study" && <FileText class={iconClass} client:load />}
+	{!category && <File class={iconClass} client:load />}
+</div>
