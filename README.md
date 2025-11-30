@@ -1,5 +1,9 @@
 # Hello!
 
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-000000?style=for-the-badge&logoColor=white)](https://linkedin.com/in/martsokha)
+[![LeetCode](https://img.shields.io/badge/LeetCode-000000?style=for-the-badge&logoColor=white)](https://leetcode.com/martsokha)
+[![Email](https://img.shields.io/badge/Email-000000?style=for-the-badge&logoColor=white)](mailto:martsokha@gmail.com)
+
 Software engineer specializing in AI infrastructure and data tooling, working
 with Rust and TypeScript to build web services, observability platforms, and
 data processing systems.
@@ -8,10 +12,11 @@ data processing systems.
 
 ### Privacy & Data Redaction Platform
 
-Building [Nvisy.com](https://github.com/nvisycom) - A comprehensive open-source
-redaction platform designed for enterprise privacy and compliance. Available for
-on-premise deployment with developer-friendly APIs, extensive integrations, and
-intuitive interfaces for both technical and non-technical users.
+Building **[Nvisy.com](https://github.com/nvisycom)** - A comprehensive
+open-source redaction platform designed for enterprise privacy and compliance.
+Available for on-premise deployment with developer-friendly APIs, extensive
+integrations, and intuitive interfaces for both technical and non-technical
+users.
 
 ### Data Scraping Infrastructure
 
