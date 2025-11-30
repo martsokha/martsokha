@@ -1,7 +1,7 @@
 ---
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
-import { DEFAULT_AUTHOR, DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE, DEFAULT_TITLE } from "@/config";
+
 import MinLayout from "@/layouts/MinLayout.astro";
 import Umami from "@/layouts/Umami.astro";
 
@@ -18,14 +18,14 @@ export interface Props {
 }
 
 const {
-	title = DEFAULT_TITLE,
-	description = DEFAULT_DESCRIPTION,
+	title = "Oleh Martsokha",
+	description = "Software engineer focused on AI infrastructure and data tooling. Writing about web development, and system design.",
 	withDefaultTitle = true,
-	image = DEFAULT_OG_IMAGE,
+	image = "/og-image.jpg",
 	article,
 	publishedTime,
 	modifiedTime,
-	author = DEFAULT_AUTHOR,
+	author = "Oleh Martsokha",
 	keywords,
 } = Astro.props;
 ---

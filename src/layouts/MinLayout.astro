@@ -1,5 +1,5 @@
 ---
-import { DEFAULT_AUTHOR, DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE, DEFAULT_TITLE } from "@/config";
+
 
 import "@/assets/styles/font.css";
 import "@/assets/styles/markdown.css";
@@ -34,19 +34,19 @@ export interface Props {
 }
 
 const {
-	title = DEFAULT_TITLE,
-	description = DEFAULT_DESCRIPTION,
+	title = "Oleh Martsokha",
+	description = "Software engineer focused on AI infrastructure and data tooling. Writing about web development, and system design.",
 	withDefaultTitle = true,
-	image = DEFAULT_OG_IMAGE,
+	image = "/og-image.jpg",
 	article = false,
 	publishedTime,
 	modifiedTime,
-	author = DEFAULT_AUTHOR,
+	author = "Oleh Martsokha",
 	keywords,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
-const pageTitle = withDefaultTitle ? `${title} · ${DEFAULT_TITLE}` : title;
+const pageTitle = withDefaultTitle ? `${title} · Oleh Martsokha` : title;
 const fullImageUrl = new URL(image, Astro.site).toString();
 
 // Generate structured data
@@ -64,7 +64,7 @@ const structuredData = {
 	},
 	publisher: {
 		"@type": "Organization",
-		name: DEFAULT_TITLE,
+		name: "Oleh Martsokha",
 		url: Astro.site?.toString(),
 	},
 	...(publishedTime && { datePublished: publishedTime }),
@@ -117,7 +117,7 @@ const structuredData = {
 		<meta property="og:title" content={pageTitle} />
 		<meta property="og:description" content={description} />
 		<meta property="og:image" content={fullImageUrl} />
-		<meta property="og:site_name" content={DEFAULT_TITLE} />
+		<meta property="og:site_name" content="Oleh Martsokha" />
 		<meta property="og:locale" content="en_US" />
 		{article && publishedTime && <meta property="article:published_time" content={publishedTime} />}
 		{article && modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
