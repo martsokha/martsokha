@@ -1,35 +1,40 @@
 <script setup lang="ts">
+import { Moon, Sun } from "lucide-vue-next";
 import { onMounted, ref } from "vue";
-import { applyTheme, getThemePreference, observeThemeChanges } from "@/utils/theme";
+import {
+  applyTheme,
+  getThemePreference,
+  observeThemeChanges,
+} from "@/utils/theme";
 
 const isDark = ref(false);
 
-const _toggleTheme = () => {
-	try {
-		isDark.value = !isDark.value;
-		applyTheme(isDark.value);
-	} catch (error) {
-		console.error("Theme toggle error:", error);
-		// Fallback to light mode on error
-		isDark.value = false;
-		applyTheme(false);
-	}
+const toggleTheme = () => {
+  try {
+    isDark.value = !isDark.value;
+    applyTheme(isDark.value);
+  } catch (error) {
+    console.error("Theme toggle error:", error);
+    // Fallback to light mode on error
+    isDark.value = false;
+    applyTheme(false);
+  }
 };
 
 onMounted(() => {
-	try {
-		const shouldBeDark = getThemePreference();
-		isDark.value = shouldBeDark;
+  try {
+    const shouldBeDark = getThemePreference();
+    isDark.value = shouldBeDark;
 
-		// Apply theme and start observing changes
-		applyTheme(shouldBeDark);
-		observeThemeChanges();
-	} catch (error) {
-		console.error("Theme initialization error:", error);
-		// Fallback to light mode on error
-		isDark.value = false;
-		applyTheme(false);
-	}
+    // Apply theme and start observing changes
+    applyTheme(shouldBeDark);
+    observeThemeChanges();
+  } catch (error) {
+    console.error("Theme initialization error:", error);
+    // Fallback to light mode on error
+    isDark.value = false;
+    applyTheme(false);
+  }
 });
 </script>
 
