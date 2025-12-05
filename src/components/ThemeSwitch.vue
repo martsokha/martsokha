@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { Moon, Sun } from "lucide-vue-next";
 import { onMounted, ref } from "vue";
 import { applyTheme, getThemePreference, observeThemeChanges } from "@/utils/theme";
 
 const isDark = ref(false);
 
-const toggleTheme = () => {
+const _toggleTheme = () => {
 	try {
 		isDark.value = !isDark.value;
 		applyTheme(isDark.value);
