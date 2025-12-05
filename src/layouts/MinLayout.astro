@@ -87,7 +87,7 @@ const structuredData = {
 
 		<!-- Theme and Appearance -->
 		<meta name="color-scheme" content="light dark"/>
-		<meta name="theme-color" content="#ffffff"/>
+		<meta name="theme-color" content="#fafafa"/>
 
 		<!-- Favicon and Icons -->
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -151,7 +151,7 @@ const structuredData = {
 			function updateThemeColor(isDark: boolean): void {
 				const metaThemeColor = document.querySelector('meta[name="theme-color"]');
 				if (metaThemeColor) {
-					metaThemeColor.setAttribute('content', isDark ? '#000000' : '#ffffff');
+					metaThemeColor.setAttribute('content', isDark ? '#000000' : '#fafafa');
 				}
 			}
 
