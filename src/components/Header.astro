@@ -1,5 +1,5 @@
 ---
-import Avatar from "./Avatar.vue";
+import { Image } from "astro:assets";
 import Socials from "./Socials.astro";
 ---
 
@@ -8,12 +8,12 @@ import Socials from "./Socials.astro";
 		<div class="flex items-center justify-between">
 			<!-- Left side: Avatar + Name + Title -->
 			<a href="/" class="flex items-center gap-4 lg:gap-6 hover:opacity-80 transition-opacity">
-				<Avatar
-					client:load
+				<Image
 					src="/avatar.jpg"
 					alt="Oleh Martsokha"
-					fallbackText="OM"
-					size="size-12 sm:size-16"
+					width={64}
+					height={64}
+					class="size-12 sm:size-16 rounded-full object-cover"
 				/>
 
 				<div class="flex flex-col min-w-0 flex-1">

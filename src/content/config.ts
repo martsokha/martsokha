@@ -19,6 +19,7 @@ const posts = defineCollection({
 			message: "All tags must be single words without spaces or hyphens",
 		}),
 		draft: z.boolean().default(false),
+		isPublished: z.boolean().default(false),
 	}),
 });
 

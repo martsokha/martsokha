@@ -11,10 +11,12 @@ import LinkedinIcon from "@/assets/icons/linkedin.svg?raw";
 export async function getStaticPaths() {
 	try {
 		const blogEntries = await getCollection("posts");
-		return blogEntries.map((entry) => ({
-			params: { slug: entry.slug },
-			props: { entry },
-		}));
+		return blogEntries
+			.filter((entry) => entry.data.isPublished)
+			.map((entry) => ({
+				params: { slug: entry.slug },
+				props: { entry },
+			}));
 	} catch (error: unknown) {
 		// Return empty array if no blog collection exists.
 		console.error("Error fetching blog collection:", error);
@@ -29,9 +31,9 @@ const { Content } = await entry.render();
 const readingTime = calculateReadingTime(entry.body);
 
 // Get all blog entries for navigation
-const allPosts = (await getCollection("posts")).sort(
-	(a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
-);
+const allPosts = (await getCollection("posts"))
+	.filter((post) => post.data.isPublished)
+	.sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
 
 // Find current post index for navigation
 const currentIndex = allPosts.findIndex((post) => post.slug === entry.slug);
