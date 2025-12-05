@@ -1,66 +1,35 @@
 <script setup lang="ts">
 import { Moon, Sun } from "lucide-vue-next";
 import { onMounted, ref } from "vue";
+import { applyTheme, getThemePreference, observeThemeChanges } from "@/utils/theme";
 
 const isDark = ref(false);
 
 const toggleTheme = () => {
 	try {
 		isDark.value = !isDark.value;
-
-		// Force remove any existing theme classes first
-		document.documentElement.classList.remove("dark", "light");
-
-		if (isDark.value) {
-			document.documentElement.classList.add("dark");
-			document.documentElement.setAttribute("data-theme", "dark");
-			localStorage.setItem("theme", "dark");
-		} else {
-			document.documentElement.classList.add("light");
-			document.documentElement.setAttribute("data-theme", "light");
-			localStorage.setItem("theme", "light");
-		}
+		applyTheme(isDark.value);
 	} catch (error) {
 		console.error("Theme toggle error:", error);
 		// Fallback to light mode on error
 		isDark.value = false;
-		document.documentElement.classList.remove("dark");
-		document.documentElement.classList.add("light");
-		document.documentElement.setAttribute("data-theme", "light");
-		localStorage.setItem("theme", "light");
+		applyTheme(false);
 	}
 };
 
 onMounted(() => {
 	try {
-		// Check for saved theme preference or default to system preference
-		const savedTheme = localStorage.getItem("theme");
-		const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+		const shouldBeDark = getThemePreference();
+		isDark.value = shouldBeDark;
 
-		const shouldBeDark = savedTheme ? savedTheme === "dark" : systemPrefersDark;
-
-		// Force remove any existing theme classes first
-		document.documentElement.classList.remove("dark", "light");
-
-		if (shouldBeDark) {
-			isDark.value = true;
-			document.documentElement.classList.add("dark");
-			document.documentElement.setAttribute("data-theme", "dark");
-			localStorage.setItem("theme", "dark");
-		} else {
-			isDark.value = false;
-			document.documentElement.classList.add("light");
-			document.documentElement.setAttribute("data-theme", "light");
-			localStorage.setItem("theme", "light");
-		}
+		// Apply theme and start observing changes
+		applyTheme(shouldBeDark);
+		observeThemeChanges();
 	} catch (error) {
 		console.error("Theme initialization error:", error);
 		// Fallback to light mode on error
 		isDark.value = false;
-		document.documentElement.classList.remove("dark");
-		document.documentElement.classList.add("light");
-		document.documentElement.setAttribute("data-theme", "light");
-		localStorage.setItem("theme", "light");
+		applyTheme(false);
 	}
 });
 </script>
