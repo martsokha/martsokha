@@ -87,7 +87,7 @@ const structuredData = {
 
 		<!-- Theme and Appearance -->
 		<meta name="color-scheme" content="light dark"/>
-		<meta name="theme-color" content="#ffffff"/>
+		<meta name="theme-color" content="#fafafa"/>
 
 		<!-- Favicon and Icons -->
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -128,97 +128,37 @@ const structuredData = {
 		<!-- Structured Data -->
 		<script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 
-		<!-- Dark Mode Initialization (prevent flash) -->
-		<script>
-			interface ThemeDebugInfo {
-				stored: string | null;
-				prefersDark: boolean;
-				shouldBeDark: boolean;
-				currentClasses: string;
-			}
-
-			interface ThemeAppliedInfo {
-				finalTheme: 'dark' | 'light';
-				finalClasses: string;
-			}
-
-			function getThemePreference(): boolean {
-				const stored = localStorage.getItem('theme');
-				const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-				return stored ? stored === 'dark' : prefersDark;
-			}
-
-			function updateThemeColor(isDark: boolean): void {
-				const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-				if (metaThemeColor) {
-					metaThemeColor.setAttribute('content', isDark ? '#000000' : '#ffffff');
-				}
-			}
-
-			function applyTheme(isDark: boolean): void {
-				document.documentElement.classList.remove('dark', 'light');
-				const theme = isDark ? 'dark' : 'light';
-
-				document.documentElement.classList.add(theme);
-				document.documentElement.setAttribute('data-theme', theme);
-				updateThemeColor(isDark);
-				localStorage.setItem('theme', theme);
-			}
-
-			function logThemeDebug(info: ThemeDebugInfo | ThemeAppliedInfo): void {
-				const debugMode = localStorage.getItem('debug-theme') === 'true';
-				if (debugMode) {
-					console.log('Theme Debug:', info);
-				}
-			}
-
-			function observeThemeChanges(): void {
-				const observer = new MutationObserver((mutations) => {
-					mutations.forEach((mutation) => {
-						if (mutation.attributeName === 'class') {
-							const isDark = document.documentElement.classList.contains('dark');
-							updateThemeColor(isDark);
-						}
-					});
-				});
-
-				observer.observe(document.documentElement, {
-					attributes: true,
-					attributeFilter: ['class']
-				});
-			}
-
-			function initializeTheme(): void {
+		<!-- Minimal Theme Initialization (prevent flash) -->
+		<script is:inline>
+			(function() {
 				try {
-					const shouldBeDark = getThemePreference();
+					const stored = localStorage.getItem('theme');
+					const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+					const shouldBeDark = stored ? stored === 'dark' : prefersDark;
 
-					logThemeDebug({
-						stored: localStorage.getItem('theme'),
-						prefersDark: window.matchMedia('(prefers-color-scheme: dark)').matches,
-						shouldBeDark,
-						currentClasses: document.documentElement.className
-					});
+					document.documentElement.classList.remove('dark', 'light');
+					const theme = shouldBeDark ? 'dark' : 'light';
+					document.documentElement.classList.add(theme);
+					document.documentElement.setAttribute('data-theme', theme);
 
-					applyTheme(shouldBeDark);
-					observeThemeChanges();
+					const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+					if (metaThemeColor) {
+						metaThemeColor.setAttribute('content', shouldBeDark ? '#000000' : '#fafafa');
+					}
 
-					logThemeDebug({
-						finalTheme: shouldBeDark ? 'dark' : 'light',
-						finalClasses: document.documentElement.className
-					});
+					localStorage.setItem('theme', theme);
 				} catch (error) {
 					console.error('Theme initialization error:', error);
-					applyTheme(false);
+					document.documentElement.classList.add('light');
+					document.documentElement.setAttribute('data-theme', 'light');
 				}
-			}
-
-			initializeTheme();
+			})();
 		</script>
 
 		<!-- Analytics -->
 		<slot name="analytics" />
 	</head>
-	<body class="bg-white dark:bg-black antialiased min-h-screen">
+	<body class="bg-neutral-50 dark:bg-black antialiased min-h-screen">
 	    <!-- Content Components -->
 		<slot name="content" />
 

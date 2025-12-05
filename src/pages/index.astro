@@ -3,9 +3,11 @@ import { Layout } from "@/layouts";
 import ImageFallback from "@/components/ImageFallback.astro";
 import { calculateReadingTime } from "@/utils/content";
 import { getCollection } from "astro:content";
+import { File } from "lucide-vue-next";
 
 // Get all blog entries and sort by publishedAt (newest first)
 const blogEntries = (await getCollection("posts"))
+	.filter((entry) => entry.data.isPublished)
 	.map((entry) => ({
 		...entry,
 		readingTime: calculateReadingTime(entry.body),
@@ -14,13 +16,12 @@ const blogEntries = (await getCollection("posts"))
 ---
 
 <Layout title="Blog" description="Insights, stories, and updates from our team">
-  <div class="bg-white dark:bg-black min-h-screen">
+  <div>
     <!-- Main Content -->
-    <div class="container mx-auto px-4 py-4 md:py-8 lg:py-12">
-
-
-      <!-- Posts Grid -->
-      <div class="max-w-7xl mx-auto">
+    <div class="bg-white dark:bg-black min-h-screen">
+      <div class="container mx-auto px-4 py-4 md:py-8 lg:py-12">
+        <!-- Posts Grid -->
+        <div class="max-w-7xl mx-auto">
         {blogEntries.length > 0 ? (
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {blogEntries.map((post, index) => (
@@ -89,9 +90,8 @@ const blogEntries = (await getCollection("posts"))
             <p class="text-gray-500 dark:text-neutral-400">Blog posts will appear here once they are published.</p>
           </div>
         )}
+        </div>
       </div>
     </div>
-
-
   </div>
 </Layout>

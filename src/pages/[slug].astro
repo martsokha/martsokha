@@ -11,10 +11,12 @@ import LinkedinIcon from "@/assets/icons/linkedin.svg?raw";
 export async function getStaticPaths() {
 	try {
 		const blogEntries = await getCollection("posts");
-		return blogEntries.map((entry) => ({
-			params: { slug: entry.slug },
-			props: { entry },
-		}));
+		return blogEntries
+			.filter((entry) => entry.data.isPublished)
+			.map((entry) => ({
+				params: { slug: entry.slug },
+				props: { entry },
+			}));
 	} catch (error: unknown) {
 		// Return empty array if no blog collection exists.
 		console.error("Error fetching blog collection:", error);
@@ -29,9 +31,9 @@ const { Content } = await entry.render();
 const readingTime = calculateReadingTime(entry.body);
 
 // Get all blog entries for navigation
-const allPosts = (await getCollection("posts")).sort(
-	(a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
-);
+const allPosts = (await getCollection("posts"))
+	.filter((post) => post.data.isPublished)
+	.sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
 
 // Find current post index for navigation
 const currentIndex = allPosts.findIndex((post) => post.slug === entry.slug);
@@ -43,9 +45,10 @@ const relatedPosts = allPosts.filter((post) => post.slug !== entry.slug).slice(0
 ---
 
 <Layout title={entry.data.title} description={entry.data.description}>
-  <div class="bg-white dark:bg-black min-h-screen">
-    <!-- Article Header -->
-    <div class="container mx-auto px-4 py-8">
+  <div class="min-h-screen">
+    <div class="bg-white dark:bg-black">
+      <!-- Article Header -->
+      <div class="container mx-auto px-4 py-8">
       <div class="max-w-4xl mx-auto">
         <div>
           <!-- Meta and Share -->
@@ -202,7 +205,8 @@ const relatedPosts = allPosts.filter((post) => post.slug !== entry.slug).slice(0
       </div>
     </div>
 
-    <!-- Extra spacing before footer -->
-    <div class="pb-16"></div>
+      <!-- Extra spacing before footer -->
+      <div class="pb-16"></div>
+    </div>
   </div>
 </Layout>
