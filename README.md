@@ -3,7 +3,7 @@
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-000000?style=for-the-badge&logoColor=white)](https://linkedin.com/in/martsokha)
 [![LeetCode](https://img.shields.io/badge/LeetCode-000000?style=for-the-badge&logoColor=white)](https://leetcode.com/martsokha)
 [![Email](https://img.shields.io/badge/Email-000000?style=for-the-badge&logoColor=white)](mailto:hello@martsokha.com)
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-white?style=for-the-badge&logoColor=000000)](https://buymeacoffee.com/martsokha)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-f5f5f5?style=for-the-badge&logoColor=000000)](https://buymeacoffee.com/martsokha)
 
 Software engineer specializing in AI infrastructure and data tooling, working
 with Rust and TypeScript to build web services, observability platforms, and
