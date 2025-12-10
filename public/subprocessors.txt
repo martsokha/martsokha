@@ -1,0 +1,17 @@
+Subprocessors
+
+This document lists the third-party service providers (subprocessors) used to support this website.
+
+Service Providers:
+
+Cloudflare
+Website: https://cloudflare.com
+Purpose: Content delivery network (CDN), DNS, and website hosting
+
+Proton
+Website: https://proton.me
+Purpose: Email services
+
+Umami
+Website: https://umami.is
+Purpose: Privacy-focused website analytics

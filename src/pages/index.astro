@@ -3,7 +3,7 @@ import { Layout } from "@/layouts";
 import ImageFallback from "@/components/ImageFallback.astro";
 import { calculateReadingTime } from "@/utils/content";
 import { getCollection } from "astro:content";
-import { File } from "lucide-vue-next";
+import { File, ExternalLink } from "lucide-vue-next";
 
 // Get all blog entries and sort by publishedAt (newest first)
 const blogEntries = (await getCollection("posts"))
@@ -16,13 +16,10 @@ const blogEntries = (await getCollection("posts"))
 ---
 
 <Layout title="Blog" description="Insights, stories, and updates from our team">
-  <div>
-    <!-- Main Content -->
-    <div class="bg-white dark:bg-black min-h-screen">
+  {blogEntries.length > 0 ? (
+    <div class="bg-white dark:bg-black">
       <div class="container mx-auto px-4 py-4 md:py-8 lg:py-12">
-        <!-- Posts Grid -->
         <div class="max-w-7xl mx-auto">
-        {blogEntries.length > 0 ? (
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {blogEntries.map((post, index) => (
               <article class="group transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
@@ -81,17 +78,48 @@ const blogEntries = (await getCollection("posts"))
               </article>
             ))}
           </div>
-        ) : (
-          <div class="text-center py-20">
-            <div class="w-20 h-20 bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-6 text-neutral-400 dark:text-neutral-500">
-              <File class="w-4 h-4" client:load />
-            </div>
-            <h3 class="text-xl font-light text-gray-900 dark:text-white mb-2">No blog posts found</h3>
-            <p class="text-gray-500 dark:text-neutral-400">Blog posts will appear here once they are published.</p>
-          </div>
-        )}
         </div>
       </div>
     </div>
-  </div>
+  ) : (
+    <div class="bg-white dark:bg-black w-full min-h-[60vh] flex items-center justify-center">
+      <div class="container mx-auto px-4">
+        <div class="max-w-2xl mx-auto text-center">
+          <!-- Large 204 -->
+          <h1 class="text-7xl md:text-8xl font-bold text-neutral-900 dark:text-white mb-4 leading-none">
+            204
+          </h1>
+
+          <!-- Main heading -->
+          <h2 class="text-xl md:text-2xl font-semibold text-neutral-900 dark:text-white mb-3">
+            No Blog Posts Found
+          </h2>
+
+          <!-- Description -->
+          <p class="text-sm md:text-base text-neutral-600 dark:text-neutral-400 mb-8">
+            Blog posts will appear here once they are published.
+          </p>
+
+          <!-- Action buttons -->
+          <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <a
+              href="https://github.com/martsokha/martsokha"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3 text-base bg-neutral-900 dark:bg-white text-white dark:text-black rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors font-medium"
+            >
+              View Repository
+              <ExternalLink class="w-4 h-4" client:load />
+            </a>
+            <a
+              href="mailto:hello@martsokha.com"
+              class="inline-flex items-center justify-center px-6 py-3 text-base border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-white rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors font-medium"
+            >
+              Contact
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
 </Layout>
