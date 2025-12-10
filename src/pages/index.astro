@@ -15,7 +15,7 @@ const blogEntries = (await getCollection("posts"))
 	.sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
 ---
 
-<Layout title="Blog" description="Insights, stories, and updates from our team">
+<Layout title="Blog" description="Personal insights, stories, and updates from my journey in tech">
   {blogEntries.length > 0 ? (
     <div class="bg-white dark:bg-black">
       <div class="container mx-auto px-4 py-4 md:py-8 lg:py-12">
