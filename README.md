@@ -1,7 +1,7 @@
 # Hello!
 
 Software engineer focused on backend systems, web services, and data
-processing. Mostly writing Rust and TypeScript.
+processing.
 
 ### Currently Working On
 
