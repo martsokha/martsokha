@@ -1,55 +1,56 @@
 <script setup lang="ts">
-import { Moon, Sun } from "lucide-vue-next";
-import { onMounted, ref } from "vue";
-import { applyTheme, getThemePreference, observeThemeChanges } from "@/utils/theme";
+import { Monitor, Moon, Sun } from "lucide-vue-next";
+import { onMounted, onUnmounted, ref } from "vue";
+import { type ThemeMode, applyTheme, getStoredMode } from "@/utils/theme";
 
-const isDark = ref(false);
+const mode = ref<ThemeMode>("auto");
+let mediaQuery: MediaQueryList | null = null;
+let mediaHandler: (() => void) | null = null;
 
-const toggleTheme = () => {
-	try {
-		isDark.value = !isDark.value;
-		applyTheme(isDark.value);
-	} catch (error) {
-		console.error("Theme toggle error:", error);
-		// Fallback to light mode on error
-		isDark.value = false;
-		applyTheme(false);
-	}
-};
+const options: { value: ThemeMode; icon: typeof Sun }[] = [
+	{ value: "light", icon: Sun },
+	{ value: "auto", icon: Monitor },
+	{ value: "dark", icon: Moon },
+];
+
+function setMode(newMode: ThemeMode) {
+	mode.value = newMode;
+	applyTheme(newMode);
+}
 
 onMounted(() => {
-	try {
-		const shouldBeDark = getThemePreference();
-		isDark.value = shouldBeDark;
+	mode.value = getStoredMode();
+	applyTheme(mode.value);
 
-		// Apply theme and start observing changes
-		applyTheme(shouldBeDark);
-		observeThemeChanges();
-	} catch (error) {
-		console.error("Theme initialization error:", error);
-		// Fallback to light mode on error
-		isDark.value = false;
-		applyTheme(false);
+	mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+	mediaHandler = () => {
+		if (mode.value === "auto") applyTheme("auto");
+	};
+	mediaQuery.addEventListener("change", mediaHandler);
+});
+
+onUnmounted(() => {
+	if (mediaQuery && mediaHandler) {
+		mediaQuery.removeEventListener("change", mediaHandler);
 	}
 });
 </script>
 
 <template>
-  <button
-    @click="toggleTheme"
-    class="flex items-center space-x-2 px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-700 md:border-0 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors min-w-20"
-    :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-  >
-    <Sun
-      v-if="!isDark"
-      class="w-4 h-4 text-neutral-600 dark:text-neutral-400"
-    />
-    <Moon
-      v-if="isDark"
-      class="w-4 h-4 text-neutral-600 dark:text-neutral-400"
-    />
-    <span class="text-sm text-neutral-600 dark:text-neutral-400">
-      {{ isDark ? "Dark" : "Light" }}
-    </span>
-  </button>
+  <div class="flex items-center gap-0.5 p-1 rounded-lg bg-neutral-100 dark:bg-neutral-900">
+    <button
+      v-for="opt in options"
+      :key="opt.value"
+      @click="setMode(opt.value)"
+      :class="[
+        'p-1.5 rounded-md transition-colors',
+        mode === opt.value
+          ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 shadow-sm'
+          : 'text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300'
+      ]"
+      :aria-label="`Switch to ${opt.value} mode`"
+    >
+      <component :is="opt.icon" class="w-3.5 h-3.5" />
+    </button>
+  </div>
 </template>

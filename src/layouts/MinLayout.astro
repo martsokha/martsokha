@@ -81,8 +81,6 @@ const structuredData = {
 		<meta name="generator" content={Astro.generator} />
 
 		<!-- Performance Optimizations -->
-		<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link rel="dns-prefetch" href="https://cloud.umami.is" />
 
 		<!-- Theme and Appearance -->
@@ -132,23 +130,18 @@ const structuredData = {
 		<script is:inline>
 			(function() {
 				try {
-					const stored = localStorage.getItem('theme');
-					const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-					const shouldBeDark = stored ? stored === 'dark' : prefersDark;
+					var stored = localStorage.getItem('theme');
+					var mode = (stored === 'light' || stored === 'dark' || stored === 'auto') ? stored : 'auto';
+					var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+					var resolved = mode === 'auto' ? (prefersDark ? 'dark' : 'light') : mode;
 
 					document.documentElement.classList.remove('dark', 'light');
-					const theme = shouldBeDark ? 'dark' : 'light';
-					document.documentElement.classList.add(theme);
-					document.documentElement.setAttribute('data-theme', theme);
+					document.documentElement.classList.add(resolved);
+					document.documentElement.setAttribute('data-theme', resolved);
 
-					const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-					if (metaThemeColor) {
-						metaThemeColor.setAttribute('content', shouldBeDark ? '#000000' : '#fafafa');
-					}
-
-					localStorage.setItem('theme', theme);
-				} catch (error) {
-					console.error('Theme initialization error:', error);
+					var meta = document.querySelector('meta[name="theme-color"]');
+					if (meta) meta.setAttribute('content', resolved === 'dark' ? '#0a0a0a' : '#ffffff');
+				} catch (e) {
 					document.documentElement.classList.add('light');
 					document.documentElement.setAttribute('data-theme', 'light');
 				}
@@ -158,7 +151,7 @@ const structuredData = {
 		<!-- Analytics -->
 		<slot name="analytics" />
 	</head>
-	<body class="bg-neutral-50 dark:bg-black antialiased min-h-screen">
+	<body class="bg-white dark:bg-neutral-950 antialiased min-h-screen font-sans text-neutral-900 dark:text-neutral-100">
 	    <!-- Content Components -->
 		<slot name="content" />
 

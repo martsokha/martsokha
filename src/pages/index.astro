@@ -1,124 +1,78 @@
 ---
 import { Layout } from "@/layouts";
-import ImageFallback from "@/components/ImageFallback.astro";
 import { calculateReadingTime } from "@/utils/content";
 import { getCollection } from "astro:content";
-import { File, ExternalLink } from "lucide-vue-next";
 
-// Get all blog entries and sort by publishedAt (newest first)
 const blogEntries = (await getCollection("posts"))
 	.filter((entry) => entry.data.isPublished)
 	.map((entry) => ({
 		...entry,
-		readingTime: calculateReadingTime(entry.body),
+		readingTime: entry.body ? calculateReadingTime(entry.body) : 1,
 	}))
 	.sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
+
+// Group posts by year
+const postsByYear = blogEntries.reduce<Record<string, typeof blogEntries>>((acc, post) => {
+	const year = new Date(post.data.publishedAt).getFullYear().toString();
+	if (!acc[year]) acc[year] = [];
+	acc[year].push(post);
+	return acc;
+}, {});
+
+const years = Object.keys(postsByYear).sort((a, b) => Number(b) - Number(a));
 ---
 
 <Layout title="Blog" description="Personal insights, stories, and updates from my journey in tech">
   {blogEntries.length > 0 ? (
-    <div class="bg-white dark:bg-black">
-      <div class="container mx-auto px-4 py-4 md:py-8 lg:py-12">
-        <div class="max-w-7xl mx-auto">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogEntries.map((post, index) => (
-              <article class="group transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
-                <a href={`/${post.slug}`} class="block h-full">
-                  <div class="bg-white dark:bg-black rounded-xl overflow-hidden border border-gray-200 dark:border-neutral-700 hover:border-gray-300 dark:hover:border-neutral-600 h-full flex flex-col min-h-[400px]">
-                    <!-- Image/Icon Area -->
-                    <div class="aspect-[4/3] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-neutral-800 dark:to-neutral-900 flex items-center justify-center relative overflow-hidden">
-                      <ImageFallback category={post.data.category || ""} size="md" />
-
-                      <!-- Latest Badge - only for first post -->
-                      {index === 0 && (
-                        <div class="absolute top-3 left-3">
-                          <span class="text-xs font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 px-3 py-1 rounded-full shadow-lg">
-                            Latest
-                          </span>
-                        </div>
-                      )}
-
-                      <!-- Category Badge -->
-                      {post.data.category && (
-                        <div class="absolute top-3 right-3">
-                          <span class="text-xs font-medium text-gray-600 dark:text-neutral-400 bg-white/90 dark:bg-black/90 backdrop-blur-sm px-2 py-1 rounded border dark:border-neutral-700">
-                            {post.data.category}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <!-- Content -->
-                    <div class="flex-grow flex flex-col p-5">
-                      <!-- Meta Info -->
-                      <div class="flex items-center gap-2 mb-3 text-gray-500 dark:text-neutral-400 text-xs">
-                        <span>
-                          {new Date(post.data.publishedAt).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
-                        </span>
-                        <span class="text-gray-300 dark:text-neutral-600">•</span>
-                        <span>{post.readingTime} min read</span>
-                      </div>
-
-                      <!-- Title -->
-                      <h3 class="font-light text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-base leading-snug line-clamp-2">
-                        {post.data.title}
-                      </h3>
-
-                      <!-- Excerpt -->
-                      <p class="text-gray-600 dark:text-neutral-300 leading-relaxed flex-grow text-sm line-clamp-3">
-                        {post.data.excerpt || post.data.description}
-                      </p>
-                    </div>
-                  </div>
-                </a>
-              </article>
+    <div class="container mx-auto px-6 max-w-3xl">
+      {years.map((year) => (
+        <section class="mb-16">
+          <h2 class="font-serif text-lg tracking-normal text-neutral-400 dark:text-neutral-500 mb-8">{year}</h2>
+          <div class="space-y-8">
+            {postsByYear[year].map((post) => (
+              <a
+                href={`/${post.id}`}
+                class="group block -mx-3 px-3 py-4 rounded-lg transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900"
+              >
+                <div class="flex items-baseline gap-4 mb-1">
+                  <time class="text-sm tracking-normal text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">
+                    {new Date(post.data.publishedAt).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </time>
+                  {post.data.category && (
+                    <span class="text-xs tracking-normal text-neutral-400 dark:text-neutral-500">
+                      {post.data.category}
+                    </span>
+                  )}
+                  <span class="text-xs tracking-normal text-neutral-400 dark:text-neutral-500 hidden sm:block ml-auto">
+                    {post.readingTime} min read
+                  </span>
+                </div>
+                <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors mb-1">
+                  {post.data.title}
+                </h3>
+                <p class="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-3 leading-relaxed">
+                  {post.data.excerpt || post.data.description}
+                </p>
+              </a>
             ))}
           </div>
-        </div>
-      </div>
+        </section>
+      ))}
     </div>
   ) : (
-    <div class="bg-white dark:bg-black w-full min-h-[60vh] flex items-center justify-center">
-      <div class="container mx-auto px-4">
-        <div class="max-w-2xl mx-auto text-center">
-          <!-- Large 204 -->
-          <h1 class="text-7xl md:text-8xl font-bold text-neutral-900 dark:text-white mb-4 leading-none">
-            204
-          </h1>
-
-          <!-- Main heading -->
-          <h2 class="text-xl md:text-2xl font-semibold text-neutral-900 dark:text-white mb-3">
-            No Blog Posts Found
-          </h2>
-
-          <!-- Description -->
-          <p class="text-sm md:text-base text-neutral-600 dark:text-neutral-400 mb-8">
-            Blog posts will appear here once they are published.
-          </p>
-
-          <!-- Action buttons -->
-          <div class="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href="https://github.com/martsokha/martsokha"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center justify-center gap-2 px-6 py-3 text-base bg-neutral-900 dark:bg-white text-white dark:text-black rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors font-medium"
-            >
-              View Repository
-              <ExternalLink class="w-4 h-4" client:load />
-            </a>
-            <a
-              href="mailto:hello@martsokha.com"
-              class="inline-flex items-center justify-center px-6 py-3 text-base border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-white rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors font-medium"
-            >
-              Contact
-            </a>
-          </div>
-        </div>
+    <div class="container mx-auto px-6 max-w-3xl min-h-[50vh] flex items-center justify-center">
+      <div class="text-center">
+        <h1 class="font-serif text-6xl tracking-normal text-neutral-900 dark:text-neutral-100 mb-4">204</h1>
+        <p class="text-neutral-500 dark:text-neutral-400 mb-8">No posts yet.</p>
+        <a
+          href="mailto:hello@martsokha.com"
+          class="text-sm text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors underline underline-offset-4 decoration-neutral-300 dark:decoration-neutral-600"
+        >
+          Get in touch
+        </a>
       </div>
     </div>
   )}

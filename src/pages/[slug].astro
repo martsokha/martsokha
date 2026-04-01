@@ -1,12 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import ImageFallback from "@/components/ImageFallback.astro";
-import { getCollection } from "astro:content";
-import { ChevronLeft, ChevronRight } from "lucide-vue-next";
+import { getCollection, render } from "astro:content";
 import { calculateReadingTime } from "@/utils/content";
-
-import BlueskyIcon from "@/assets/icons/bluesky.svg?raw";
-import LinkedinIcon from "@/assets/icons/linkedin.svg?raw";
 
 export async function getStaticPaths() {
 	try {
@@ -14,199 +9,101 @@ export async function getStaticPaths() {
 		return blogEntries
 			.filter((entry) => entry.data.isPublished)
 			.map((entry) => ({
-				params: { slug: entry.slug },
+				params: { slug: entry.id },
 				props: { entry },
 			}));
 	} catch (error: unknown) {
-		// Return empty array if no blog collection exists.
 		console.error("Error fetching blog collection:", error);
 		return [];
 	}
 }
 
 const { entry } = Astro.props;
-const { Content } = await entry.render();
+const { Content } = await render(entry);
+const readingTime = entry.body ? calculateReadingTime(entry.body) : 1;
 
-// Calculate reading time dynamically
-const readingTime = calculateReadingTime(entry.body);
-
-// Get all blog entries for navigation
 const allPosts = (await getCollection("posts"))
 	.filter((post) => post.data.isPublished)
 	.sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
 
-// Find current post index for navigation
-const currentIndex = allPosts.findIndex((post) => post.slug === entry.slug);
+const currentIndex = allPosts.findIndex((post) => post.id === entry.id);
 const previousPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
 const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
-
-// Related posts (most recent posts, excluding current post)
-const relatedPosts = allPosts.filter((post) => post.slug !== entry.slug).slice(0, 3);
 ---
 
 <Layout title={entry.data.title} description={entry.data.description}>
-  <div class="min-h-screen">
-    <div class="bg-white dark:bg-black">
-      <!-- Article Header -->
-      <div class="container mx-auto px-4 py-8">
-      <div class="max-w-4xl mx-auto">
-        <div>
-          <!-- Meta and Share -->
-          <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-            <div class="flex items-center gap-4">
-              {entry.data.category && (
-                <span class="text-sm font-medium text-white bg-black dark:bg-white dark:text-black px-3 py-1 rounded-full">
-                  {entry.data.category}
-                </span>
-              )}
-              <time class="text-gray-500 dark:text-neutral-400 text-sm">
-                {new Date(entry.data.publishedAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </time>
-              <span class="text-gray-300 dark:text-neutral-600">•</span>
-              <span class="text-gray-500 dark:text-neutral-400 text-sm">{readingTime} min read</span>
-            </div>
+  <div class="container mx-auto px-6 max-w-3xl">
+    <!-- Header -->
+    <header class="mb-12">
+      <div class="flex items-center gap-3 text-sm text-neutral-400 dark:text-neutral-500 mb-6">
+        <time>
+          {new Date(entry.data.publishedAt).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })}
+        </time>
+        <span>&middot;</span>
+        <span>{readingTime} min read</span>
+        {entry.data.category && (
+          <>
+            <span>&middot;</span>
+            <span>{entry.data.category}</span>
+          </>
+        )}
+      </div>
 
-            <!-- Share Buttons -->
-            <div class="flex items-center gap-3">
-              <span class="text-sm text-gray-500 dark:text-neutral-400 mr-2">Share</span>
-              <a
-                href={`https://bsky.app/intent/compose?text=${encodeURIComponent(entry.data.title + ' ' + Astro.url)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="w-10 h-10 bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 rounded-full flex items-center justify-center transition-colors text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white"
-                aria-label="Share on Bluesky"
-              >
-                <div class="w-5 h-5" set:html={BlueskyIcon} />
-              </a>
-              <a
-                href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${Astro.url}`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="w-10 h-10 bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 rounded-full flex items-center justify-center transition-colors text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white"
-                aria-label="Share on LinkedIn"
-              >
-                <div class="w-5 h-5" set:html={LinkedinIcon} />
-              </a>
-            </div>
-          </div>
+      <h1 class="font-serif text-4xl md:text-5xl leading-tight text-neutral-900 dark:text-neutral-100 mb-4">
+        {entry.data.title}
+      </h1>
 
-          <!-- Title -->
-          <h1 class="text-4xl md:text-5xl lg:text-6xl font-light text-gray-900 dark:text-white leading-tight mb-6">
-            {entry.data.title}
-          </h1>
+      {entry.data.excerpt && (
+        <p class="text-lg text-neutral-500 dark:text-neutral-400 leading-relaxed">
+          {entry.data.excerpt}
+        </p>
+      )}
+    </header>
 
-          <!-- Description -->
-          {entry.data.excerpt && (
-            <p class="text-xl md:text-2xl text-gray-600 dark:text-neutral-300 leading-relaxed mb-8 max-w-3xl">
-              {entry.data.excerpt}
-            </p>
+    <!-- Content -->
+    <article class="mb-16">
+      <div class="prose max-w-none text-neutral-800 dark:text-neutral-200" style="font-size: 1.0625rem;">
+        <Content />
+      </div>
+    </article>
+
+    <!-- Tags -->
+    {entry.data.tags && entry.data.tags.length > 0 && (
+      <div class="mb-12 flex flex-wrap gap-2">
+        {entry.data.tags.map(tag => (
+          <span class="text-xs text-neutral-400 dark:text-neutral-500 border border-neutral-200 dark:border-neutral-800 px-3 py-1 rounded-full">
+            {tag}
+          </span>
+        ))}
+      </div>
+    )}
+
+    <!-- Navigation -->
+    {(previousPost || nextPost) && (
+      <nav class="border-t border-neutral-200 dark:border-neutral-800 pt-8 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {previousPost && (
+            <a href={`/${previousPost.id}`} class="group">
+              <span class="text-xs text-neutral-400 dark:text-neutral-500 block mb-1">&larr; Previous</span>
+              <span class="text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-500 dark:group-hover:text-neutral-400 transition-colors">
+                {previousPost.data.title}
+              </span>
+            </a>
           )}
-
-          <!-- Featured Image / Placeholder -->
-          <div class="aspect-[21/9] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-neutral-800 dark:to-neutral-900 rounded-xl flex items-center justify-center">
-            <ImageFallback category={entry.data.category || ""} size="md" />
-          </div>
+          {nextPost && (
+            <a href={`/${nextPost.id}`} class="group sm:text-right sm:col-start-2">
+              <span class="text-xs text-neutral-400 dark:text-neutral-500 block mb-1">Next &rarr;</span>
+              <span class="text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-500 dark:group-hover:text-neutral-400 transition-colors">
+                {nextPost.data.title}
+              </span>
+            </a>
+          )}
         </div>
-      </div>
-    </div>
-
-    <!-- Article Content -->
-    <div class="container mx-auto px-4">
-      <div class="max-w-4xl mx-auto">
-        <article class="max-w-none mb-16">
-          <div class="prose prose-xl max-w-none mx-auto leading-loose text-gray-800 dark:text-gray-200 prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-strong:text-gray-900 dark:prose-strong:text-gray-100" style="font-size: 1.125rem; line-height: 1.8;">
-            <Content />
-          </div>
-        </article>
-      </div>
-    </div>
-
-    <!-- Tags and Navigation Container -->
-    <div class="container mx-auto px-4">
-      <div class="max-w-4xl mx-auto">
-
-        <!-- Tags -->
-        {entry.data.tags && entry.data.tags.length > 0 && (
-          <div class="mb-12">
-            <div class="flex flex-wrap gap-2">
-              {entry.data.tags.map(tag => (
-                <span class="text-sm text-gray-600 dark:text-neutral-400 bg-gray-50 dark:bg-neutral-900 px-3 py-1.5 rounded-full border border-gray-200 dark:border-neutral-700">
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <!-- Article Navigation -->
-        {(previousPost || nextPost) && (
-          <nav class="border-t border-gray-200 dark:border-neutral-700 pt-12 mb-16">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {previousPost && (
-                <div>
-                  <div class="text-sm text-gray-500 dark:text-neutral-400 mb-2">Previous Article</div>
-                  <a href={`/${previousPost.slug}`} class="group inline-flex items-center gap-3">
-                    <ChevronLeft class="w-5 h-5 text-gray-400 dark:text-neutral-500 group-hover:text-black dark:group-hover:text-white transition-colors" />
-                    <span class="text-lg font-light text-gray-900 dark:text-white group-hover:text-black dark:group-hover:text-white transition-colors">
-                      {previousPost.data.title}
-                    </span>
-                  </a>
-                </div>
-              )}
-              {nextPost && (
-                <div class="md:text-right md:col-start-2">
-                  <div class="text-sm text-gray-500 dark:text-neutral-400 mb-2">Next Article</div>
-                  <a href={`/${nextPost.slug}`} class="group inline-flex items-center gap-3 md:flex-row-reverse">
-                    <ChevronRight class="w-5 h-5 text-gray-400 dark:text-neutral-500 group-hover:text-black dark:group-hover:text-white transition-colors" />
-                    <span class="text-lg font-light text-gray-900 dark:text-white group-hover:text-black dark:group-hover:text-white transition-colors">
-                      {nextPost.data.title}
-                    </span>
-                  </a>
-                </div>
-              )}
-            </div>
-          </nav>
-        )}
-
-        <!-- Related Posts -->
-        {relatedPosts.length > 0 && (
-          <div class="border-t border-gray-200 dark:border-neutral-700 pt-12">
-            <h2 class="text-2xl font-light text-gray-900 dark:text-white mb-8">Related Articles</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {relatedPosts.map(post => (
-                <article class="group">
-                  <a href={`/${post.slug}`}>
-                    <div class="aspect-video bg-gradient-to-br from-gray-50 to-gray-100 dark:from-neutral-800 dark:to-neutral-900 rounded-lg mb-4 flex items-center justify-center transition-colors group-hover:from-gray-100 group-hover:to-gray-200 dark:group-hover:from-neutral-700 dark:group-hover:to-neutral-800">
-                      <ImageFallback category={post.data.category || ""} size="sm" class="transition-colors group-hover:text-gray-600 dark:group-hover:text-neutral-300" />
-                    </div>
-                    <div class="text-sm text-gray-500 dark:text-neutral-400 mb-2 transition-colors group-hover:text-gray-700 dark:group-hover:text-neutral-300">
-                      {new Date(post.data.publishedAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </div>
-                    <h3 class="text-lg font-light text-gray-900 dark:text-white group-hover:text-black dark:group-hover:text-neutral-200 transition-colors mb-2">
-                      {post.data.title}
-                    </h3>
-                    <p class="text-gray-600 dark:text-neutral-300 text-sm overflow-hidden transition-colors group-hover:text-gray-800 dark:group-hover:text-neutral-200" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
-                      {post.data.excerpt || post.data.description}
-                    </p>
-                  </a>
-                </article>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-
-      <!-- Extra spacing before footer -->
-      <div class="pb-16"></div>
-    </div>
+      </nav>
+    )}
   </div>
 </Layout>

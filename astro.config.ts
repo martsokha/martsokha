@@ -22,7 +22,7 @@ export default defineConfig({
 		shikiConfig: {
 			defaultColor: "light",
 			themes: {
-				light: "catppuccin-latte",
+				light: "github-light",
 				dark: "aurora-x",
 			},
 			wrap: true,
