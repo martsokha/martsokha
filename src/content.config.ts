@@ -1,8 +1,9 @@
 import { defineCollection, z } from "astro:content";
-import { validateNotFutureDate, validateSingleWordTags } from "./validation";
+import { glob } from "astro/loaders";
+import { validateNotFutureDate, validateSingleWordTags } from "./content/validation";
 
 const posts = defineCollection({
-	type: "content",
+	loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/posts" }),
 	schema: z.object({
 		title: z.string(),
 		description: z.string(),

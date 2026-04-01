@@ -16,7 +16,7 @@ const srcPath = fileURLToPath(srcImport);
 // https://astro.build/config
 export default defineConfig({
 	site: "https://martsokha.com",
-	integrations: [vue({ devtools: true }), sitemap(), mdx()],
+	integrations: [vue(), sitemap(), mdx()],
 
 	markdown: {
 		shikiConfig: {
