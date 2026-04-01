@@ -1,0 +1,60 @@
+---
+title: "Building a Search Engine from a Scraper"
+author: "Oleh Martsokha"
+publishedAt: 2025-02-08T12:00:00-04:00
+description: "After building Spire as a web scraping framework, I wanted to push it further — what happens when you connect crawling to indexing and ranking? This post covers an experimental search engine built on top of Spire, exploring the full pipeline from URL discovery to search results."
+excerpt: "What happens when you extend a web scraping framework into a full retrieval pipeline? I built a toy search engine on top of Spire to find out."
+category: "Spire"
+tags: ["Rust", "Search", "Architecture"]
+isPublished: true
+---
+
+Once [Spire](https://github.com/spire-rs/spire) could crawl and extract content reliably, a natural question followed: what do you actually do with all that data?
+
+The usual answer is "write it to a database" or "dump it to JSON." But crawling, indexing, and search are tightly related problems, and treating them as separate systems means losing information at each boundary. So I built a [toy search engine](https://github.com/spire-rs/search) on top of Spire to see what a unified pipeline could look like.
+
+It's experimental, small in scope, and not trying to compete with anything. The goal is to explore the architecture, not to build a production search engine.
+
+## Why connect crawling to search
+
+Most scraping workflows are open-loop. You crawl pages, extract data, and store it. If you want to search that data later, you pipe it into Elasticsearch or Meilisearch or whatever search engine you prefer. The crawler doesn't know about the index, and the index doesn't know about the crawler.
+
+This separation makes sense at scale, but it has costs. The crawler can't prioritize URLs based on what's already indexed. The index can't tell the crawler when content is stale. Deduplication, freshness, and relevance all require coordination between systems that don't talk to each other.
+
+In a small, self-contained system, you can close this loop. The crawler feeds the indexer, the indexer informs the crawler, and search queries can trigger re-crawls when results look stale. Spire's middleware architecture makes this natural — every stage is a tower service, and services compose.
+
+## The pipeline
+
+The search engine has three stages, each implemented as a Spire service.
+
+**Crawling** uses Spire's standard HTTP backend with the [kit](https://github.com/spire-rs/kit) libraries for robots.txt and sitemap compliance. The crawler maintains content fingerprints for each URL. On re-crawl, it compares fingerprints before triggering reindexing — if the content hasn't meaningfully changed, the crawl budget goes to URLs more likely to have new content.
+
+**Indexing** builds an inverted index from crawled content. Text gets tokenized, stemmed, and stored with position information for phrase queries. Alongside the inverted index, the indexer computes lightweight document features — word count, link density, heading structure, content-to-markup ratio. These feed into ranking without requiring a separate feature store.
+
+**Ranking** uses BM25 for text relevance, combined with document quality signals as tiebreakers. No ML models, no learned embeddings. Deliberately simple and transparent.
+
+## What I learned about composition
+
+The most interesting outcome wasn't the search engine itself — it was seeing how the tower service model holds up when the pipeline gets more complex.
+
+Each stage is independently testable. You can run the indexer against a static corpus without crawling. You can test ranking against a snapshot of the index without running the full pipeline. The service boundaries create natural seams for testing and debugging.
+
+Backpressure flows naturally through the system. A slow indexer limits how fast the crawler fetches new pages. A burst of search queries doesn't interfere with background crawling because they're separate services with separate concurrency limits. tower handles this — it's the same load management that production web servers use.
+
+The tag-based routing system that Spire uses for directing different page types to different handlers extended naturally to the indexing stage. Pages tagged as `"article"` go through a different feature extraction pipeline than pages tagged as `"reference"`. The routing declaration is the same — only the handlers change.
+
+## Where the abstraction gets strained
+
+Not everything mapped cleanly. The inverted index has its own persistence requirements that don't fit neatly into Spire's data store abstraction. Index segments need compaction, merging, and atomic swaps — operations that are specific to search and don't generalize well.
+
+Incremental updates are also tricky. When a document changes, you need to remove its old terms from the index and add the new ones, ideally without rebuilding the entire index. This requires coordination between the crawler (which detects changes) and the indexer (which manages the index structure) that's more tightly coupled than the service model wants.
+
+These are solvable problems, but they push against the framework's composability model. Not every system decomposes cleanly into independent services with well-defined request/response interfaces.
+
+## Current state
+
+The search project is still unpublished and experimental. It handles small, focused crawls well — a few hundred to a few thousand pages — and produces reasonable search results for the kind of domain-specific queries you'd run against a curated collection.
+
+It's not going to replace anything. The value is in the exploration: understanding where framework abstractions help and where they get in the way, and building intuition for how crawling, indexing, and ranking interact as a system rather than as isolated components.
+
+If you're interested in the scraping framework itself, [Spire](https://github.com/spire-rs/spire) is on crates.io. The search experiment will be published once it's further along.

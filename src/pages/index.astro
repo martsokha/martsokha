@@ -27,8 +27,8 @@ const years = Object.keys(postsByYear).sort((a, b) => Number(b) - Number(a));
     <div class="container mx-auto px-6 max-w-3xl">
       {years.map((year) => (
         <section class="mb-16">
-          <h2 class="font-serif text-lg tracking-normal text-neutral-400 dark:text-neutral-500 mb-8">{year}</h2>
-          <div class="space-y-8">
+          <h2 class="font-serif text-lg tracking-normal text-neutral-400 dark:text-neutral-500 mb-4">{year}</h2>
+          <div class="space-y-4">
             {postsByYear[year].map((post) => (
               <a
                 href={`/${post.id}`}
@@ -65,7 +65,7 @@ const years = Object.keys(postsByYear).sort((a, b) => Number(b) - Number(a));
   ) : (
     <div class="container mx-auto px-6 max-w-3xl min-h-[50vh] flex items-center justify-center">
       <div class="text-center">
-        <h1 class="font-serif text-6xl tracking-normal text-neutral-900 dark:text-neutral-100 mb-4">204</h1>
+        <h1 class="font-serif text-7xl md:text-8xl tracking-normal text-neutral-900 dark:text-neutral-100 mb-4">204</h1>
         <p class="text-neutral-500 dark:text-neutral-400 mb-8">No posts yet.</p>
         <a
           href="mailto:hello@martsokha.com"

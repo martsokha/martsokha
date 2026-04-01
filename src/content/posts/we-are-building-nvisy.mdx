@@ -1,0 +1,54 @@
+---
+title: "Why We Are Building Nvisy"
+author: "Oleh Martsokha"
+publishedAt: 2026-03-22T12:00:00-04:00
+description: "Regulated industries deal with massive amounts of unstructured data containing sensitive information. Existing redaction tools are manual, brittle, or locked into a single format. Nvisy is our answer: an open, multimodal redaction platform designed for the way organizations actually process data."
+excerpt: "Existing redaction tools are manual, brittle, or locked into a single format. We're building Nvisy to handle sensitive data across documents, images, and audio — automatically and at scale."
+category: "Nvisy"
+tags: ["Privacy", "Infrastructure", "OpenSource"]
+isPublished: true
+---
+
+Most organizations dealing with sensitive data face the same problem: unstructured content arrives in every format imaginable — PDFs, scanned documents, images, audio recordings — and somewhere inside that content lives personally identifiable information that needs to be found and removed before it can be shared, stored, or processed further.
+
+The tools that exist today mostly fall into two categories. Manual review, where a human reads through every document and blacks out names and addresses. Or narrow automation that only handles plain text and falls apart the moment you hand it a scanned PDF or an audio file.
+
+Neither approach scales. Neither approach is reliable enough for industries where getting it wrong has real consequences — healthcare, legal, financial services, government.
+
+## The problem
+
+We looked at what was available and kept running into the same limitations.
+
+Most redaction software treats each format as a separate problem. You need one tool for PDFs, another for images, another for audio. Each tool has its own pipeline, its own detection logic, its own failure modes. Stitching them together into something coherent is left as an exercise for the customer.
+
+Detection is usually either too simple or too opaque. Regex-based tools catch obvious patterns like social security numbers but miss context-dependent information — a name in a medical note, a face in a background photo, a voice mentioning an address. LLM-based tools can catch more but give you no visibility into why something was flagged or missed.
+
+And almost nothing is built for self-hosting. If you're in a regulated industry, sending your most sensitive documents to a third-party API is often a non-starter.
+
+## What we're building
+
+We started [Nvisy](https://nvisy.com) with a few principles.
+
+**One runtime, every format.** Documents, images, and audio flow through the same pipeline. A PDF with embedded images and a standalone JPEG use the same detection logic. The system has a unified content model that works across modalities — we wrote about the technical details in [Building Multimodal Redaction](/building-multimodal-redaction).
+
+**Layered detection.** Deterministic patterns — regex, dictionaries, checksums — run first because they're fast and cheap. ML models — NER, OCR, object detection — handle what patterns can't. LLMs provide the final layer for context-dependent classification. Each layer has clear costs and tradeoffs, and operators can configure which layers run for which document types.
+
+**Policy-driven redaction.** Detection and redaction are separate concerns. Once you've found sensitive information, what you do with it depends on the use case. Mask it, replace it with synthetic data, hash it, encrypt it, blur it. These decisions are expressed as policies scoped to entity types and confidence thresholds, not hardcoded into the detection pipeline.
+
+**Self-hosted first.** The entire system runs on your own infrastructure. We offer a cloud option at [nvisy.com](https://nvisy.com) for teams that want managed infrastructure, but the core [runtime](https://github.com/nvisycom/runtime) and [server](https://github.com/nvisycom/server) are open source under Apache 2.0.
+
+## The ecosystem
+
+Beyond the core runtime, we're building out the tools around it.
+
+The [server](https://github.com/nvisycom/server) wraps the runtime with REST and WebSocket APIs, multi-tenant workspace isolation, and real-time collaboration via NATS pub/sub. There are SDKs for [TypeScript](https://github.com/nvisycom/sdk-ts), [Python](https://github.com/nvisycom/sdk-py), and [Rust](https://github.com/nvisycom/sdk-rs).
+
+[Studio](https://github.com/nvisycom/studio) is a desktop app built with Tauri for teams that need local-only processing — no data leaves the machine. We also have integrations for [Zapier](https://github.com/nvisycom/zapier) and [n8n](https://github.com/nvisycom/n8n) for teams that want to plug redaction into existing workflows.
+
+The [cloud platform](https://github.com/nvisycom/platform) extends the server with analytics, billing, and managed infrastructure for teams that don't want to operate the system themselves.
+
+## Where we are
+
+We're still early. The detection pipeline improves with every iteration, and there are formats and edge cases we haven't tackled yet. Compliance requirements vary by industry and jurisdiction, and the policy system needs to be expressive enough to handle all of them.
+
+But the core architecture is solid and the pieces are coming together. If you're working with sensitive data and want to follow along, the runtime is [open source on GitHub](https://github.com/nvisycom/runtime) and the docs are at [docs.nvisy.com](https://docs.nvisy.com).

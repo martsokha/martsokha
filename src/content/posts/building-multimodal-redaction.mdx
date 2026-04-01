@@ -1,0 +1,70 @@
+---
+title: "Multimodal Redaction, from Documents to Audio"
+author: "Oleh Martsokha"
+publishedAt: 2025-10-18T12:00:00-04:00
+description: "A technical look at how we're designing Nvisy's runtime to process documents, images, and audio through a unified span-based content model — combining deterministic patterns, ML models, and LLMs into a single layered detection pipeline."
+excerpt: "How we're designing a unified content model and layered detection pipeline to redact sensitive data across PDFs, images, and audio."
+category: "Nvisy"
+tags: ["Privacy", "Infrastructure", "Architecture"]
+isPublished: true
+---
+
+The central problem we're solving with [Nvisy](https://github.com/nvisycom/runtime) is straightforward to state: how do you represent content from a PDF, a JPEG, and a WAV file in the same data structure, run the same detection logic against all three, and produce redacted output that preserves the original format?
+
+This post covers the key architectural decisions we're making and why.
+
+## The span-based content model
+
+The foundation of the runtime is a unified content model built around spans. A span is a reference to a contiguous region of content within a document — a range of characters in text, a bounding box in an image, a time interval in audio.
+
+Every codec — PDF, DOCX, image, audio, CSV, JSON, plain text — parses its input into a sequence of spans. A PDF page produces text spans from extracted text and image spans from embedded graphics. An audio file produces transcript spans from speech-to-text. The detection pipeline only ever sees spans, regardless of where they came from.
+
+This means detection logic gets written once. A regex that matches a phone number works the same whether the text came from a Word document or an OCR pass over a scanned PDF. An NER model that identifies names processes the same span structure whether the source was a transcript or a CSV column.
+
+The codec is responsible for two things: decomposing a document into spans, and applying redaction operations back onto the original format. Everything in between — detection, classification, policy evaluation — operates on the abstract span layer.
+
+## Layered detection
+
+Not all detection methods have the same cost or accuracy profile. Running an LLM over every sentence in a thousand-page document is expensive and slow. Running a regex is nearly free. The detection pipeline is explicitly layered to take advantage of this.
+
+**Layer 1: Deterministic patterns.** Regex, dictionary lookups, and checksum validators run first. These catch structured PII — social security numbers, credit card numbers, email addresses, phone numbers. They're fast, predictable, and produce no false positives when the patterns are well-defined. This layer processes the full document in milliseconds.
+
+**Layer 2: ML models.** Named entity recognition, OCR, and object detection handle what patterns can't — names, addresses, faces, handwritten text. These models are more expensive but can identify context-dependent entities that no regex will catch. We're running NER via spaCy and OCR via Surya, called from the runtime through PyO3.
+
+**Layer 3: LLM classification.** For ambiguous cases — is this string a person's name or a company name? Is this medical information or general health advice? — we optionally run LLM classification. This layer operates on spans that earlier layers flagged as uncertain, not on the full document. It's the most expensive layer and only fires when needed.
+
+Each layer produces detection results with confidence scores. The policy engine decides what to do with them.
+
+## Bridging into Python
+
+The ML ecosystem lives in Python. Rather than fighting that, we're embedding Python into the runtime using PyO3.
+
+The Rust side owns the event loop, I/O, span management, and pipeline orchestration. When a span needs NER or OCR, the runtime calls into Python, passes the content, and gets back annotated results. The Python side never touches the file system or manages concurrency — it's a pure function from content to annotations.
+
+This boundary is clean and testable. We can swap NER models without touching the pipeline engine. We can run the deterministic layers without Python installed at all. And the runtime stays in control of memory, concurrency, and error handling.
+
+## Redaction as a separate concern
+
+Detection tells you where sensitive information is. Redaction decides what to do about it. We're keeping these strictly separate.
+
+The redaction engine takes a set of detected spans with their entity types and confidence scores, evaluates them against a policy, and produces redaction operations. A policy might say: mask all names with confidence above 0.8, replace all phone numbers with synthetic alternatives, blur all faces, encrypt all medical record numbers.
+
+Each redaction method is implemented per codec. Masking text in a PDF is different from blurring a region in an image, which is different from muting a segment of audio. But the policy logic — which entities to redact and how — is the same regardless of format.
+
+The available methods include masking, replacement with synthetic data, one-way hashing, reversible encryption, Gaussian blur, solid color blocking, and pixelation. Which method applies to which entity type is a policy decision, not a code change.
+
+## Pipeline execution
+
+Detection layers and redaction operations compose into a pipeline represented internally as a DAG. The DAG compiler resolves dependencies between stages, and the executor runs independent stages concurrently with configurable retry and timeout policies.
+
+For large documents, the executor chunks content to stay within context-window limits for LLM calls while maintaining span references back to the original document. A detection on chunk 47 of a PDF still maps back to page 12, paragraph 3, characters 140-156.
+
+The pipeline is configurable per document class. Medical records might run all three detection layers with aggressive redaction policies. Internal memos might only run deterministic patterns. The configuration is expressed as a policy document, not as code changes.
+
+## Where we are
+
+We're still building. The runtime handles the core formats — PDF, DOCX, images, audio, CSV, JSON, plain text — and the layered detection pipeline is working. The server provides REST and WebSocket APIs with multi-tenant workspace isolation, and we have SDKs for TypeScript, Python, and Rust.
+
+The architecture — unified content model, layered detection, policy-driven redaction — is holding up as we add formats and detection methods. The hardest parts are still ahead: edge cases in document parsing, improving detection accuracy without sacrificing speed, and making the policy system expressive enough for real-world compliance requirements.
+
+The runtime is [open source](https://github.com/nvisycom/runtime) and the docs are at [docs.nvisy.com](https://docs.nvisy.com).
