@@ -1,0 +1,98 @@
+---
+title: "Designing a Composable Data Retrieval Framework"
+author: "Oleh Martsokha"
+publishedAt: 2024-10-12T12:00:00-04:00
+description: "Most web scraping libraries give you an HTTP client and leave the rest to you — concurrency, middleware, routing, error handling. Spire takes a different approach: composable middleware built on tower, pluggable backends, and type-safe routing that makes scraping pipelines feel like building a web server in reverse."
+excerpt: "Why I built Spire, a web scraping framework that treats crawling pipelines like web servers in reverse — composable, typed, and middleware-driven."
+category: "Spire"
+tags: ["Rust", "OpenSource", "Architecture"]
+isPublished: true
+---
+
+I've written a lot of scrapers. They all start the same way: fetch a page, parse the HTML, extract some data. Simple enough. Then requirements grow. You need rate limiting. Retries. Concurrent fetching with backpressure. Logging. Different handling for different page types. Browser rendering for JavaScript-heavy sites.
+
+At some point, every scraper becomes its own ad-hoc framework. The scraping logic disappears under layers of infrastructure code that you've written from scratch, again, for the third time this year.
+
+[Spire](https://github.com/spire-rs/spire) is my attempt to solve this properly — a framework where the infrastructure is composable and the scraping logic stays clean.
+
+## The core idea
+
+Web servers and web scrapers are structural mirrors. A server receives requests, routes them to handlers, and produces responses. A scraper produces requests, receives responses, and routes them to handlers. The data flows in opposite directions, but the shape is the same.
+
+The Rust ecosystem already has excellent abstractions for the server side. [tower](https://github.com/tower-rs/tower) provides composable middleware. [tokio](https://github.com/tokio-rs/tokio) provides the async runtime. [axum](https://github.com/tokio-rs/axum) shows how to build ergonomic APIs on top of tower services.
+
+Spire applies the same model to scraping. Every stage of the pipeline is a tower service. Middleware wraps services to add behavior. The framework handles concurrency, scheduling, and lifecycle — you write handlers.
+
+## Handlers and extractors
+
+A Spire handler is an async function that receives extracted data from a response. The framework injects what you ask for through typed extractors, similar to how axum injects path parameters and request bodies.
+
+```rust
+async fn scrape_page(
+    uri: http::Uri,
+    data_store: Data<String>,
+    Text(html): Text,
+) -> Result<()> {
+    let url = uri.to_string();
+    tracing::info!("Scraped {}: {} bytes", url, html.len());
+    data_store.write(format!("Content from {}", url)).await?;
+    Ok(())
+}
+```
+
+`uri` gives you the URL. `Text(html)` extracts the response body as text. `Data<String>` provides access to a typed data store. You don't parse HTTP responses manually — the framework does it and hands you what you need.
+
+This keeps handler code focused on what matters: the scraping logic. Everything else — fetching, retrying, rate limiting, concurrency — lives in the middleware stack.
+
+## Tag-based routing
+
+Different pages need different handling. A product listing page requires different extraction logic than a product detail page. In most scraping libraries, you handle this with conditionals in your handler code. In Spire, you route by tag.
+
+```rust
+let router = Router::new()
+    .route("listing", scrape_listing)
+    .route("product", scrape_product);
+```
+
+When you add a URL to the request queue, you tag it. The router directs responses to the matching handler. Tags are checked at compile time — if you reference a tag that doesn't have a handler, it's a compile error, not a runtime surprise.
+
+```rust
+client.request_queue()
+    .append_with_tag("listing", "https://example.com/products")
+    .await?;
+```
+
+## Pluggable backends
+
+Not every site can be scraped over plain HTTP. JavaScript-rendered pages need a real browser. Some sites require specific TLS configurations or cookie handling.
+
+Spire separates the concept of "make a request and get a response" from the framework itself. The default backend is reqwest for HTTP. For pages that need JavaScript rendering, you swap in thirtyfour, which drives a browser through WebDriver. The handler code stays the same — only the backend changes.
+
+```toml
+[dependencies]
+spire = { version = "0.2.0", features = ["reqwest"] }
+# or
+spire = { version = "0.2.0", features = ["thirtyfour"] }
+```
+
+The backend is a trait. If neither reqwest nor thirtyfour fits your needs, you can implement your own.
+
+## Middleware composition
+
+This is where the tower model really pays off. Rate limiting, retries, timeouts, logging — these are all tower middleware layers. You compose them declaratively, and they apply to every request in the pipeline.
+
+You don't write retry logic in your handler. You don't sprinkle rate limiting across your code. You declare the behavior once when building the client, and the framework applies it consistently.
+
+The tower ecosystem also means you can use middleware written by other people. Any tower-compatible layer works with Spire — there's a large existing ecosystem of battle-tested middleware for HTTP services that applies directly.
+
+## Respecting the web
+
+Scraping responsibly matters. The [kit](https://github.com/spire-rs/kit) repository provides libraries for robots.txt parsing (robotxt) and sitemap processing (sitemapo). These aren't afterthoughts bolted onto the framework — they're designed to integrate naturally into the crawling pipeline.
+
+The robots.txt parser handles crawl-delay directives, sitemap references, and wildcard matching. The sitemap parser supports both XML and text formats, including video, image, and news extensions. Together, they give you a clear picture of what a site allows and where its content lives.
+
+## Where it stands
+
+Spire is published on [crates.io](https://crates.io/crates/spire) and the API reference is on [docs.rs](https://docs.rs/spire). It's still evolving — the API surface is settling but not yet stable, and there are areas where ergonomics can improve.
+
+The framework does what I set out to build: composable scraping pipelines where you write handlers, not infrastructure. Whether it's a simple single-page scraper or a multi-backend crawler with custom middleware, the shape of the code stays the same.

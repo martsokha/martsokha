@@ -1,3 +1,9 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
+
+@theme {
+	--font-sans: "Inter", system-ui, sans-serif;
+	--font-serif: "Literata", Georgia, serif;
+	--font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
