@@ -1,0 +1,91 @@
+---
+title: "Building a Scraping Framework, Then Stress-Testing It"
+author: "Oleh Martsokha"
+publishedAt: 2024-10-12T12:00:00-04:00
+description: "Most web scraping libraries give you an HTTP client and leave the rest to you — concurrency, middleware, routing, error handling. Spire takes a different approach: composable middleware built on tower, pluggable backends, and type-safe routing. Then I pushed it somewhere it wasn't designed to go, and found out where the abstraction holds."
+excerpt: "Why I built Spire, a scraping framework that treats crawling pipelines like web servers in reverse — and what happened when I extended it into a search engine."
+category: "Spire"
+tags: ["Rust", "Architecture", "Search"]
+draft: true
+---
+
+I've written a lot of scrapers. They all start the same way: fetch a page, parse the HTML, extract some data. Simple enough. Then requirements grow. You need rate limiting. Retries. Concurrent fetching with backpressure. Logging. Different handling for different page types. Browser rendering for JavaScript-heavy sites.
+
+At some point, every scraper becomes its own ad-hoc framework. The scraping logic disappears under layers of infrastructure code that you've written from scratch, again, for the third time this year.
+
+[Spire](https://github.com/spire-rs/spire) is my attempt to solve this properly — a framework where the infrastructure is composable and the scraping logic stays clean.
+
+## The core idea
+
+Web servers and web scrapers are structural mirrors. A server receives requests, routes them to handlers, and produces responses. A scraper produces requests, receives responses, and routes them to handlers. The data flows in opposite directions, but the shape is the same.
+
+The Rust ecosystem already has excellent abstractions for the server side. [tower](https://github.com/tower-rs/tower) provides composable middleware. [tokio](https://github.com/tokio-rs/tokio) provides the async runtime. [axum](https://github.com/tokio-rs/axum) shows how to build ergonomic APIs on top of tower services.
+
+Spire applies the same model to scraping. Every stage of the pipeline is a tower service. Middleware wraps services to add behavior. The framework handles concurrency, scheduling, and lifecycle — you write handlers.
+
+## Handlers and extractors
+
+A Spire handler is an async function that receives extracted data from a response. The framework injects what you ask for through typed extractors, similar to how axum injects path parameters and request bodies.
+
+```rust
+async fn scrape_page(
+    uri: http::Uri,
+    data_store: Data<String>,
+    Text(html): Text,
+) -> Result<()> {
+    let url = uri.to_string();
+    tracing::info!("Scraped {}: {} bytes", url, html.len());
+    data_store.write(format!("Content from {}", url)).await?;
+    Ok(())
+}
+```
+
+`uri` gives you the URL. `Text(html)` extracts the response body as text. `Data<String>` provides access to a typed data store. You don't parse HTTP responses manually — the framework does it and hands you what you need.
+
+This keeps handler code focused on what matters. Everything else — fetching, retrying, rate limiting, concurrency — lives in the middleware stack. Rate limiting, retries, timeouts and logging are all tower layers, composed declaratively when you build the client and applied consistently to every request. You don't write retry logic in your handler. You don't sprinkle rate limiting across your code. And because they're tower layers, the existing ecosystem of battle-tested HTTP middleware applies directly.
+
+## Tag-based routing
+
+Different pages need different handling. A product listing page requires different extraction logic than a product detail page. In most scraping libraries, you handle this with conditionals in your handler code. In Spire, you route by tag.
+
+```rust
+let router = Router::new()
+    .route("listing", scrape_listing)
+    .route("product", scrape_product);
+```
+
+When you add a URL to the request queue, you tag it. The router directs responses to the matching handler. Tags are checked at compile time — if you reference a tag that doesn't have a handler, it's a compile error, not a runtime surprise.
+
+Backends are swappable in the same spirit. Not every site can be scraped over plain HTTP: JavaScript-rendered pages need a real browser. The default backend is reqwest; for pages that need rendering, you swap in thirtyfour, which drives a browser through WebDriver. The handler code stays the same — only the backend changes. The backend is a trait, so if neither fits, you implement your own.
+
+Scraping responsibly matters too. The [kit](https://github.com/spire-rs/kit) repository provides robots.txt parsing and sitemap processing designed to integrate into the crawling pipeline rather than bolt onto it — crawl-delay directives, wildcard matching, and both XML and text sitemaps.
+
+## Pushing it somewhere it wasn't designed to go
+
+Once Spire could crawl and extract content reliably, a natural question followed: what do you actually do with all that data?
+
+The usual answer is "write it to a database" or "dump it to JSON." But crawling, indexing, and search are tightly related problems, and treating them as separate systems means losing information at each boundary. The crawler can't prioritize URLs based on what's already indexed. The index can't tell the crawler when content is stale. Deduplication, freshness, and relevance all require coordination between systems that don't talk to each other.
+
+That separation makes sense at scale. In a small, self-contained system, you can close the loop. So I built a [toy search engine](https://github.com/spire-rs/search) on top of Spire to see what a unified pipeline would look like — three stages, each a Spire service.
+
+**Crawling** uses the standard HTTP backend with the kit libraries for robots.txt and sitemap compliance, maintaining content fingerprints for each URL. On re-crawl, it compares fingerprints before triggering reindexing — if the content hasn't meaningfully changed, the crawl budget goes to URLs more likely to have new content.
+
+**Indexing** builds an inverted index. Text gets tokenized, stemmed, and stored with position information for phrase queries. Alongside it, the indexer computes lightweight document features — word count, link density, heading structure, content-to-markup ratio — which feed into ranking without requiring a separate feature store.
+
+**Ranking** uses BM25 for text relevance, with document quality signals as tiebreakers. No ML models, no learned embeddings. Deliberately simple and transparent.
+
+## Where it holds, and where it strains
+
+The interesting outcome wasn't the search engine. It was watching the service model behave under a load it wasn't designed for.
+
+Three things held up well. Each stage is independently testable: you can run the indexer against a static corpus without crawling, or test ranking against a snapshot without running the full pipeline. Backpressure flows naturally — a slow indexer limits how fast the crawler fetches, and a burst of search queries doesn't interfere with background crawling, because they're separate services with separate concurrency limits. And tag-based routing extended without modification; pages tagged `"article"` go through different feature extraction than pages tagged `"reference"`, with the same routing declaration and only the handlers changing.
+
+Two things pushed back. The inverted index has persistence requirements that don't fit the data store abstraction — segments need compaction, merging, and atomic swaps, operations specific to search that don't generalize. And incremental updates need coordination the service model doesn't want: when a document changes you must remove its old terms and add new ones without rebuilding, which couples the crawler that detects the change to the indexer that owns the structure.
+
+Both are solvable. But they're the honest counterweight to the framework's thesis: not every system decomposes cleanly into independent services with well-defined request/response interfaces. Composability buys you a great deal right up until a component has its own strong opinions about state.
+
+## Where it stands
+
+Spire is published on [crates.io](https://crates.io/crates/spire) with the API reference on [docs.rs](https://docs.rs/spire). It's still evolving — the API surface is settling but not yet stable. The search experiment stays unpublished and deliberately small in scope; it handles a few hundred to a few thousand pages well and isn't trying to compete with anything.
+
+The framework does what I set out to build: composable scraping pipelines where you write handlers, not infrastructure. The search detour was worth it for a different reason — it showed me where that composability ends.
