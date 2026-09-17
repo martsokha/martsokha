@@ -14,11 +14,12 @@ export interface Props {
 	modifiedTime?: string;
 	author?: string;
 	keywords?: string;
+	noindex?: boolean;
 }
 
 const {
 	title = "Oleh Martsokha",
-	description = "Software engineer focused on AI infrastructure and data tooling. Writing about web development, and system design.",
+	description,
 	withDefaultTitle = true,
 	image = "/og-image.jpg",
 	article,
@@ -26,12 +27,13 @@ const {
 	modifiedTime,
 	author = "Oleh Martsokha",
 	keywords,
+	noindex,
 } = Astro.props;
 ---
 
 <MinLayout
 	title={title}
-	description={description}
+	{...(description && { description })}
 	withDefaultTitle={withDefaultTitle}
 	{...(image && { image })}
 	{...(article && { article })}
@@ -39,20 +41,17 @@ const {
 	{...(modifiedTime && { modifiedTime })}
 	{...(author && { author })}
 	{...(keywords && { keywords })}
+	{...(noindex && { noindex })}
 >
 	<Umami slot="analytics" />
 
 	<div slot="content" class="flex flex-col min-h-screen">
-		<header role="banner" class="shrink-0">
-			<Header />
-		</header>
+		<Header />
 
-		<main id="main-content" role="main" class="flex-1 w-full">
+		<main id="main-content" class="flex-1 w-full">
 			<slot />
 		</main>
 
-		<footer role="contentinfo" class="shrink-0">
-			<Footer />
-		</footer>
+		<Footer />
 	</div>
 </MinLayout>

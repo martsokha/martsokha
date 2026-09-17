@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Monitor, Moon, Sun } from "lucide-vue-next";
 import { onMounted, onUnmounted, ref } from "vue";
-import { type ThemeMode, applyTheme, getStoredMode } from "@/utils/theme";
+import { applyTheme, getStoredMode, type ThemeMode } from "@/utils/theme";
 
 const mode = ref<ThemeMode>("auto");
 let mediaQuery: MediaQueryList | null = null;

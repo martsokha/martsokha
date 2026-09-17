@@ -24,11 +24,6 @@ code {
 	line-height: 1.75rem;
 }
 
-[data-sdk-showcase] code {
-	font-size: 0.875rem;
-	line-height: 1.6rem;
-}
-
 article .prose h1,
 article .prose h2,
 article .prose h3,

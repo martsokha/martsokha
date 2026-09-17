@@ -1,5 +1,6 @@
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
+import { z } from "astro/zod";
 import { validateNotFutureDate, validateSingleWordTags } from "./content/validation";
 
 const posts = defineCollection({
@@ -11,7 +12,7 @@ const posts = defineCollection({
 			message: "Published date cannot be in the future",
 		}),
 		updatedAt: z.coerce.date().optional().refine(validateNotFutureDate, {
-			message: "Published date cannot be in the future",
+			message: "Updated date cannot be in the future",
 		}),
 		category: z.string().optional(),
 		author: z.string().optional(),
@@ -20,7 +21,6 @@ const posts = defineCollection({
 			message: "All tags must be single words without spaces or hyphens",
 		}),
 		draft: z.boolean().default(false),
-		isPublished: z.boolean().default(false),
 	}),
 });
 
