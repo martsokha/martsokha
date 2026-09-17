@@ -1,5 +1,6 @@
 import { getCollection } from "astro:content";
 import rss from "@astrojs/rss";
+import { isVisible } from "@/utils/content";
 
 /**
  * @param {import('astro').APIContext} context
@@ -9,10 +10,12 @@ export async function GET(context) {
 
 	// Sort posts by date, newest first
 	const sortedPosts = posts
-		.filter((post) => post.data.isPublished)
+		.filter(isVisible)
 		.sort(
 			(a, b) => new Date(b.data.publishedAt).getTime() - new Date(a.data.publishedAt).getTime(),
 		);
+
+	const lastBuildDate = sortedPosts[0]?.data.publishedAt ?? new Date();
 
 	return rss({
 		title: "Oleh Martsokha's Blog",
@@ -22,9 +25,9 @@ export async function GET(context) {
 			title: post.data.title,
 			pubDate: post.data.publishedAt,
 			description: post.data.description,
-			link: `/${post.id}/`,
+			link: `/${post.id}`,
 			categories: post.data.tags || [],
 		})),
-		customData: `<language>en-us</language>`,
+		customData: `<language>en-us</language><lastBuildDate>${lastBuildDate.toUTCString()}</lastBuildDate>`,
 	});
 }

@@ -1,28 +1,26 @@
 /**
- * Validates that all tags are single words without spaces or hyphens
+ * Validates that all tags are single words without spaces or hyphens.
+ *
+ * Returns false rather than throwing so Zod reports it as a normal validation
+ * error, pointing at the offending field, instead of an uncaught exception.
+ *
  * @param tags - Array of tag strings to validate
- * @returns true if valid, throws error if invalid
+ * @returns true if valid
  */
 export const validateSingleWordTags = (tags: string[] | undefined): boolean => {
 	if (!tags) return true;
 
-	for (const tag of tags) {
-		if (tag.includes(" ") || tag.includes("-")) {
-			throw new Error(`Tag "${tag}" contains spaces or hyphens. Tags must be single words only.`);
-		}
-	}
-	return true;
+	return tags.every((tag) => !tag.includes(" ") && !tag.includes("-"));
 };
 
 /**
- * Validates that a date is not in the future
+ * Validates that a date is not in the future.
+ *
  * @param date - Date to validate
- * @returns true if valid, throws error if invalid
+ * @returns true if valid
  */
 export const validateNotFutureDate = (date: Date | undefined): boolean => {
-	const now = new Date();
-	if (typeof date !== "undefined" && date > now) {
-		throw new Error(`Date cannot be in the future.`);
-	}
-	return true;
+	if (typeof date === "undefined") return true;
+
+	return date <= new Date();
 };

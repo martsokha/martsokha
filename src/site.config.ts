@@ -1,11 +1,9 @@
 /**
- * Social media and contact links
+ * Social media links
  */
 export const SOCIAL_LINKS = {
-	bluesky: "https://bsky.app/profile/martsokha.bsky.social",
 	linkedin: "https://linkedin.com/in/martsokha",
 	github: "https://github.com/martsokha",
-	email: "hello@martsokha.com",
 } as const;
 
 /**

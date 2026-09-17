@@ -31,11 +31,13 @@ export interface Props {
 	author?: string;
 	/** SEO keywords as comma-separated string */
 	keywords?: string;
+	/** Keep the page out of search indexes (error pages, etc.) */
+	noindex?: boolean;
 }
 
 const {
 	title = "Oleh Martsokha",
-	description = "Software engineer focused on AI infrastructure and data tooling. Writing about web development, and system design.",
+	description = "Software engineer focused on backend systems, web services, and data processing. Mostly writing Rust and TypeScript.",
 	withDefaultTitle = true,
 	image = "/og-image.jpg",
 	article = false,
@@ -43,6 +45,7 @@ const {
 	modifiedTime,
 	author = "Oleh Martsokha",
 	keywords,
+	noindex = false,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
@@ -53,12 +56,12 @@ const fullImageUrl = new URL(image, Astro.site).toString();
 const structuredData = {
 	"@context": "https://schema.org",
 	"@type": article ? "Article" : "WebPage",
-	headline: pageTitle,
+	headline: title,
 	description,
 	url: canonical,
 	image: fullImageUrl,
 	author: {
-		"@type": "Organization",
+		"@type": "Person",
 		name: author,
 		url: Astro.site?.toString(),
 	},
@@ -85,7 +88,7 @@ const structuredData = {
 
 		<!-- Theme and Appearance -->
 		<meta name="color-scheme" content="light dark"/>
-		<meta name="theme-color" content="#fafafa"/>
+		<meta name="theme-color" content="#ffffff"/>
 
 		<!-- Favicon and Icons -->
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -96,7 +99,6 @@ const structuredData = {
 
 		<!-- Sitemap and Robots -->
 		<link rel="sitemap" href="/sitemap-index.xml" />
-		<link rel="author" type="text/plain" href="/humans.txt" />
 
 		<!-- Security -->
 		<meta http-equiv="X-Content-Type-Options" content="nosniff" />
@@ -104,6 +106,7 @@ const structuredData = {
 
 		<!-- SEO -->
 		<link rel="canonical" href={canonical} />
+		{noindex && <meta name="robots" content="noindex, follow" />}
 		<title>{pageTitle}</title>
 		<meta name="title" content={pageTitle} />
 		<meta name="description" content={description} />
@@ -142,8 +145,9 @@ const structuredData = {
 					var meta = document.querySelector('meta[name="theme-color"]');
 					if (meta) meta.setAttribute('content', resolved === 'dark' ? '#0a0a0a' : '#ffffff');
 				} catch (e) {
-					document.documentElement.classList.add('light');
-					document.documentElement.setAttribute('data-theme', 'light');
+					var fallback = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+					document.documentElement.classList.add(fallback);
+					document.documentElement.setAttribute('data-theme', fallback);
 				}
 			})();
 		</script>

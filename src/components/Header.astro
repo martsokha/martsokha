@@ -2,19 +2,19 @@
 import Socials from "./Socials.astro";
 ---
 
-<header class="py-12 md:py-16">
+<header role="banner" class="shrink-0 py-12 md:py-16">
 	<div class="container mx-auto px-6 max-w-3xl">
 		<div class="flex items-center justify-between">
 			<a href="/" class="group">
-				<h1 class="font-serif text-2xl md:text-3xl tracking-normal text-neutral-900 dark:text-neutral-100">
+				<p class="font-serif text-2xl md:text-3xl tracking-normal text-neutral-900 dark:text-neutral-100">
 					Oleh Martsokha
-				</h1>
+				</p>
 				<p class="text-sm tracking-normal text-neutral-500 dark:text-neutral-400 mt-1">
 					Software Engineer
 				</p>
 			</a>
 
-			<Socials variant="compact" showEmail={false} />
+			<Socials variant="compact" />
 		</div>
 	</div>
 </header>

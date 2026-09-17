@@ -9,10 +9,6 @@ import { defineConfig } from "astro/config";
 const srcImport = new URL("./src/", import.meta.url);
 const srcPath = fileURLToPath(srcImport);
 
-// TODO: Replace Eslint & Prettier with Biome.
-// BLOCKER: https://github.com/biomejs/biome/discussions/136
-// BLOCKER: https://github.com/biomejs/biome/discussions/1254
-
 // https://astro.build/config
 export default defineConfig({
 	site: "https://martsokha.com",

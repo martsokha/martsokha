@@ -1,10 +1,10 @@
 ---
-import { Layout } from "@/layouts";
-import { calculateReadingTime } from "@/utils/content";
 import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import { calculateReadingTime, isVisible } from "@/utils/content";
 
 const blogEntries = (await getCollection("posts"))
-	.filter((entry) => entry.data.isPublished)
+	.filter(isVisible)
 	.map((entry) => ({
 		...entry,
 		readingTime: entry.body ? calculateReadingTime(entry.body) : 1,
@@ -19,17 +19,21 @@ const postsByYear = blogEntries.reduce<Record<string, typeof blogEntries>>((acc,
 	return acc;
 }, {});
 
-const years = Object.keys(postsByYear).sort((a, b) => Number(b) - Number(a));
+const postsByYearDesc = Object.entries(postsByYear).sort(([a], [b]) => Number(b) - Number(a));
 ---
 
-<Layout title="Blog" description="Personal insights, stories, and updates from my journey in tech">
+<Layout
+  title="Oleh Martsokha"
+  withDefaultTitle={false}
+  description="Software engineer focused on backend systems, web services, and data processing. Mostly writing Rust and TypeScript."
+>
   {blogEntries.length > 0 ? (
     <div class="container mx-auto px-6 max-w-3xl">
-      {years.map((year) => (
+      {postsByYearDesc.map(([year, posts]) => (
         <section class="mb-16">
           <h2 class="font-serif text-lg tracking-normal text-neutral-400 dark:text-neutral-500 mb-4">{year}</h2>
           <div class="space-y-4">
-            {postsByYear[year].map((post) => (
+            {posts.map((post) => (
               <a
                 href={`/${post.id}`}
                 class="group block -mx-3 px-3 py-4 rounded-lg transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900"
@@ -63,16 +67,21 @@ const years = Object.keys(postsByYear).sort((a, b) => Number(b) - Number(a));
       ))}
     </div>
   ) : (
-    <div class="container mx-auto px-6 max-w-3xl min-h-[50vh] flex items-center justify-center">
-      <div class="text-center">
-        <h1 class="font-serif text-7xl md:text-8xl tracking-normal text-neutral-900 dark:text-neutral-100 mb-4">204</h1>
-        <p class="text-neutral-500 dark:text-neutral-400 mb-8">No posts yet.</p>
-        <a
-          href="mailto:hello@martsokha.com"
-          class="text-sm text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors underline underline-offset-4 decoration-neutral-300 dark:decoration-neutral-600"
-        >
-          Get in touch
-        </a>
+    <div class="container mx-auto px-6 max-w-3xl h-full flex items-center py-8">
+      <div class="max-w-xl">
+        <h1 class="font-serif text-2xl md:text-3xl tracking-normal text-neutral-900 dark:text-neutral-100 mb-6">
+          Nothing here, for now.
+        </h1>
+        <p class="text-neutral-500 dark:text-neutral-400 leading-relaxed mb-4">
+          There were blog posts here before, but I didn't feel like I put nearly enough effort into
+          them. They'll come back once I find some time to rewrite them.
+        </p>
+        <p class="text-neutral-500 dark:text-neutral-400 leading-relaxed">
+          In the meantime, you can find some of the technical posts that were previously here on <a
+            href="https://nvisy.com/blog"
+            class="text-neutral-900 dark:text-neutral-100 hover:text-neutral-500 dark:hover:text-neutral-400 transition-colors underline underline-offset-4 decoration-neutral-300 dark:decoration-neutral-600"
+          >nvisy.com/blog</a>.
+        </p>
       </div>
     </div>
   )}

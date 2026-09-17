@@ -1,17 +1,15 @@
 ---
-import Layout from "@/layouts/Layout.astro";
 import { getCollection, render } from "astro:content";
-import { calculateReadingTime } from "@/utils/content";
+import Layout from "@/layouts/Layout.astro";
+import { calculateReadingTime, isVisible } from "@/utils/content";
 
 export async function getStaticPaths() {
 	try {
 		const blogEntries = await getCollection("posts");
-		return blogEntries
-			.filter((entry) => entry.data.isPublished)
-			.map((entry) => ({
-				params: { slug: entry.id },
-				props: { entry },
-			}));
+		return blogEntries.filter(isVisible).map((entry) => ({
+			params: { slug: entry.id },
+			props: { entry },
+		}));
 	} catch (error: unknown) {
 		console.error("Error fetching blog collection:", error);
 		return [];
@@ -23,7 +21,7 @@ const { Content } = await render(entry);
 const readingTime = entry.body ? calculateReadingTime(entry.body) : 1;
 
 const allPosts = (await getCollection("posts"))
-	.filter((post) => post.data.isPublished)
+	.filter(isVisible)
 	.sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
 
 const currentIndex = allPosts.findIndex((post) => post.id === entry.id);
