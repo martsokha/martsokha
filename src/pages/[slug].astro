@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import { calculateReadingTime, isVisible } from "@/utils/content";
@@ -34,6 +35,9 @@ const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
     <!-- Header -->
     <header class="mb-12">
       <div class="flex items-center gap-3 text-sm text-neutral-400 dark:text-neutral-500 mb-6">
+        {entry.data.icon && (
+          <Image src={entry.data.icon} alt="" width={28} height={28} class="size-7 rounded-md" />
+        )}
         <time>
           {new Date(entry.data.publishedAt).toLocaleDateString('en-US', {
             year: 'numeric',

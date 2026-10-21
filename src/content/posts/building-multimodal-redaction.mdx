@@ -1,0 +1,84 @@
+---
+title: "Multimodal Redaction, from Documents to Audio"
+author: "Oleh Martsokha"
+publishedAt: 2026-10-18T12:00:00-04:00
+description: "A technical look at Elide, the toolkit behind Nvisy's redaction pipeline: a type-level modality model that lets the same detection and redaction logic run over documents, images, and audio, with byte-faithful output and a verifiable audit trail."
+excerpt: "How Elide represents PDFs, images, and audio in one typed model, detects sensitive data cheaply first, and writes redactions back without touching anything else."
+category: "Nvisy"
+tags: ["Privacy", "Rust", "Architecture"]
+icon: "../../assets/posts/elide.svg"
+draft: false
+---
+
+The central problem behind [Nvisy](https://nvisy.com) is easy to state: how do you represent content from a PDF, a JPEG, and a WAV file in the same model, run the same detection logic against all three, and produce redacted output that is still a valid PDF, JPEG, and WAV?
+
+Our answer is [Elide](https://github.com/nvisycom/elide), an open-source Rust toolkit for detecting and redacting sensitive data. This post covers the key architectural decisions in it.
+
+## Modality as a type
+
+Every piece of content Elide handles belongs to a modality: text, image, audio, tabular, or metadata. A modality is a trait with three associated types. `Data` is what the content is, `Location` is how you point into it, and `Replacement` is what a redaction writes back.
+
+For text, a location is a byte range. For an image, it's a bounding box or polygon. For audio, a time span. For a spreadsheet, a cell. Entities, recognizers, and operators are all generic over the modality, so the compiler won't let you apply an audio operator to an image region, and a new modality can be added without touching the core.
+
+Codecs sit at the edges. Each one decodes a format into a stream of chunks, each a piece of data with a location and a few hints, like a column header or a JSON key, that give detection some context. Elide currently reads and writes plain text, JSON, HTML, XML, CSV, DOCX, XLSX, PPTX, PDF, PNG, JPEG, TIFF, WAV, and MP3. Container formats are walked part by part, so the images embedded in a DOCX get the image pipeline and the document's metadata gets the metadata one.
+
+## Byte-faithful round-trips
+
+The codec is responsible for two things: decomposing a document into chunks, and applying redactions back onto the original bytes. That second half matters more than it sounds.
+
+The easy approach is to extract text, find entities in it, and give the user back the text. Most tools do this. But a lawyer who sends in a DOCX wants a DOCX back, with the same formatting, tracked changes, and comments, just without the names.
+
+So locations are chunk-local while detection runs, then promoted to source-global coordinates. For text, a source reference maps decoded ranges back to raw bytes, through XML escapes and down to the specific part inside the archive. When a redaction lands, only the redacted spans change, and everything else is preserved as faithfully as the format allows. For plain text, JSON, HTML, and CSV, untouched bytes are copied verbatim. Images and audio are re-encoded after the region or segment is redacted, and formats whose parsers discard details like attribute order come back equivalent rather than byte-identical. Elide makes that tradeoff explicit per format instead of quietly degrading everywhere.
+
+## Cheap first, then escalate
+
+Not all detection methods have the same cost or accuracy profile. Running an LLM over every paragraph of a thousand-page document is expensive and slow. Running a regex is nearly free.
+
+**Patterns.** Regex, dictionary, and checksum recognizers catch structured data such as card numbers, IBANs, emails, and phone numbers. A context layer raises a match's score when supporting keywords appear nearby, so a nine-digit number next to "SSN" counts for more than one in a table of part numbers.
+
+**Models.** Names, addresses, and anything context-dependent need a model. Elide defines the recognizer contract. The actual models, a GLiNER-based NER model plus OCR and speech-to-text, run as separate inference services behind small typed wire contracts. A self-hosted model, a GPU box, or a cloud OCR API all look the same to the pipeline, and they can be swapped through configuration.
+
+**LLMs and VLMs.** For text and images that the earlier recognizers can't settle, an LLM or vision model returns its findings, and Elide maps them back to exact locations. LLMs are bad at character offsets, so instead of trusting them, we take the values they return and locate them in the source ourselves.
+
+The newest piece ties these together: an escalating recognizer always runs the cheap baseline, and only calls the expensive model when the baseline's results are weak or sparse.
+
+OCR and speech-to-text aren't detectors in this model. They're enrichers, which lift an image or an audio track into text located in the original media. The text recognizers then run on that text unchanged, and a match maps back to a bounding box on the page or a time span in the recording. Detection logic gets written once.
+
+Each modality's pipeline runs the same fixed sequence: enrich, run every recognizer concurrently, then reconcile. Recognizers are allowed to disagree. Every result carries a confidence score, and a final set of layers calibrates, reconciles, and filters the overlapping results into one set of entities.
+
+## Why Rust, not Python or TypeScript
+
+Python is the obvious default for this kind of work. The models live there, and so does [Presidio](https://github.com/data-privacy-stack/presidio), the reference open-source PII framework. TypeScript would have put the same code on the server and in the browser. We went with Rust for a few reasons.
+
+**The models don't need to be in-process.** NER, OCR, and speech-to-text are heavy, GPU-bound, and scale differently from document parsing. They run as services either way, so Python's ML ecosystem stops being an argument for writing the pipeline in Python.
+
+**Most of the work is format plumbing.** Unzipping OOXML packages, walking PDF content streams, decoding audio frames, and rewriting exact byte ranges is the bulk of the code. That needs predictable memory use on large files and no runtime surprises on malformed input. The core is free of `unsafe` code.
+
+**Types carry the invariants.** The modality model above only works because the compiler enforces it. Image locations can't reach text operators, and an encryption operator can't be built without a key provider, whose keys never end up serialized into a policy. In Python or TypeScript, those would be conventions that a test might catch.
+
+**One codebase, server and browser.** The core compiles to WebAssembly. With the pattern and dictionary recognizers, the whole detect-and-redact pipeline runs [entirely in the browser](https://nvisycom.github.io/elide), so nothing you paste leaves the page. That was the strongest argument for TypeScript, and Rust gets it too.
+
+## Redaction as a separate concern
+
+Detection tells you where sensitive information is. Redaction decides what to do about it. We keep these strictly separate, with a reviewable step in between.
+
+The anonymizer matches each entity against an ordered list of rules by label, tag, or a custom predicate, and the first match picks the operator. Choosing an operator and applying it are separate steps, so a reviewer can inspect and edit the selection before anything is written.
+
+Operators are implemented per modality:
+
+- **Text:** masking, replacement, synthetic fakes, truncation, HMAC and SHA-2 hashing, reversible encryption, pseudonymization, and date generalization.
+- **Images:** Gaussian blur, pixelation, and black boxes.
+- **Audio:** silence or a beep over the time span.
+- **Tables:** dropping a row or a column.
+
+Each operator also declares how much it leaks: recoverable, partial, or irrecoverable. That makes reversibility explicit. Encryption and pseudonymization can be undone with the right key. Hashing is classed as recoverable too: a hash of a small or guessable value, like a phone number, can be reversed by trying every candidate. Which operator applies to which entity is a policy decision, not a code change, and the runtime ships policy templates for HIPAA, GDPR, PCI DSS, and CCPA.
+
+Every entity also carries an audit log of events: what recognized it, how it was reconciled, which operator was selected, and when it was applied. Each event is hash-linked to the previous ones, so you can verify afterwards that the log hasn't been tampered with. For compliance work, being able to show why something was or wasn't redacted matters as much as redacting it.
+
+## Where we are
+
+Elide is the toolkit layer. Above it, [elide-runtime](https://github.com/nvisycom/elide-runtime) adds the policy schema, regulatory templates, and model integrations as a stateless library. The [Nvisy server](https://github.com/nvisycom/server) embeds that library behind a multi-tenant REST API, with detection running as background jobs and progress streamed over server-sent events. There are SDKs for TypeScript, Python, and Rust.
+
+The typed modality model is holding up as we add formats. The hardest parts are still ahead: edge cases in document parsing, better accuracy without giving up speed, and making policies expressive enough for real compliance requirements.
+
+Everything is open source, and the docs are at [docs.nvisy.com](https://docs.nvisy.com).

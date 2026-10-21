@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import { calculateReadingTime, isVisible } from "@/utils/content";
@@ -27,62 +28,57 @@ const postsByYearDesc = Object.entries(postsByYear).sort(([a], [b]) => Number(b)
   withDefaultTitle={false}
   description="Software engineer focused on backend systems, web services, and data processing. Mostly writing Rust and TypeScript."
 >
-  {blogEntries.length > 0 ? (
-    <div class="container mx-auto px-6 max-w-3xl">
-      {postsByYearDesc.map(([year, posts]) => (
-        <section class="mb-16">
-          <h2 class="font-serif text-lg tracking-normal text-neutral-400 dark:text-neutral-500 mb-4">{year}</h2>
-          <div class="space-y-4">
-            {posts.map((post) => (
-              <a
-                href={`/${post.id}`}
-                class="group block -mx-3 px-3 py-4 rounded-lg transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900"
-              >
-                <div class="flex items-baseline gap-4 mb-1">
-                  <time class="text-sm tracking-normal text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">
-                    {new Date(post.data.publishedAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                  </time>
-                  {post.data.category && (
-                    <span class="text-xs tracking-normal text-neutral-400 dark:text-neutral-500">
-                      {post.data.category}
-                    </span>
-                  )}
-                  <span class="text-xs tracking-normal text-neutral-400 dark:text-neutral-500 hidden sm:block ml-auto">
-                    {post.readingTime} min read
+  <div class="container mx-auto px-6 max-w-3xl">
+    {postsByYearDesc.map(([year, posts]) => (
+      <section class="mb-16">
+        <h2 class="font-serif text-lg tracking-normal text-neutral-400 dark:text-neutral-500 mb-4">{year}</h2>
+        <div class="space-y-4">
+          {posts.map((post) => (
+            <a
+              href={`/${post.id}`}
+              class="group block -mx-3 px-3 py-4 rounded-lg transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900"
+            >
+              <div class="flex items-baseline gap-4 mb-1">
+                {post.data.icon && (
+                  <Image src={post.data.icon} alt="" width={24} height={24} class="size-6 rounded-md self-center shrink-0" />
+                )}
+                <time class="text-sm tracking-normal text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">
+                  {new Date(post.data.publishedAt).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric'
+                  })}
+                </time>
+                {post.data.category && (
+                  <span class="text-xs tracking-normal text-neutral-400 dark:text-neutral-500">
+                    {post.data.category}
                   </span>
-                </div>
-                <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors mb-1">
-                  {post.data.title}
-                </h3>
-                <p class="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-3 leading-relaxed">
-                  {post.data.excerpt || post.data.description}
-                </p>
-              </a>
-            ))}
-          </div>
-        </section>
-      ))}
-    </div>
-  ) : (
-    <div class="container mx-auto px-6 max-w-3xl h-full flex items-center py-8">
-      <div class="max-w-xl">
-        <h1 class="font-serif text-2xl md:text-3xl tracking-normal text-neutral-900 dark:text-neutral-100 mb-6">
-          Nothing here, for now.
-        </h1>
-        <p class="text-neutral-500 dark:text-neutral-400 leading-relaxed mb-4">
-          There were blog posts here before, but I didn't feel like I put nearly enough effort into
-          them. They'll come back once I find some time to rewrite them.
-        </p>
-        <p class="text-neutral-500 dark:text-neutral-400 leading-relaxed">
-          In the meantime, you can find some of the technical posts that were previously here on <a
-            href="https://nvisy.com/blog"
-            class="text-neutral-900 dark:text-neutral-100 hover:text-neutral-500 dark:hover:text-neutral-400 transition-colors underline underline-offset-4 decoration-neutral-300 dark:decoration-neutral-600"
-          >nvisy.com/blog</a>.
-        </p>
-      </div>
-    </div>
-  )}
+                )}
+                <span class="text-xs tracking-normal text-neutral-400 dark:text-neutral-500 hidden sm:block ml-auto">
+                  {post.readingTime} min read
+                </span>
+              </div>
+              <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors mb-1">
+                {post.data.title}
+              </h3>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-3 leading-relaxed">
+                {post.data.excerpt || post.data.description}
+              </p>
+            </a>
+          ))}
+        </div>
+      </section>
+    ))}
+    <section class="pt-8 border-t border-neutral-200 dark:border-neutral-800">
+      <p class="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed mb-3">
+        Some of the posts that used to be here are missing. I didn't feel like I put nearly enough
+        effort into them, and they'll come back once I find some time to rewrite them.
+      </p>
+      <p class="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
+        In the meantime, you can find some of the posts that were previously here on <a
+          href="https://nvisy.com/blog"
+          class="text-neutral-900 dark:text-neutral-100 hover:text-neutral-500 dark:hover:text-neutral-400 transition-colors underline underline-offset-4 decoration-neutral-300 dark:decoration-neutral-600"
+        >nvisy.com/blog</a>.
+      </p>
+    </section>
+  </div>
 </Layout>
