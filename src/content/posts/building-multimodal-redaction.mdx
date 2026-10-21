@@ -28,7 +28,7 @@ The codec is responsible for two things: decomposing a document into chunks, and
 
 The easy approach is to extract text, find entities in it, and give the user back the text. Most tools do this. But a lawyer who sends in a DOCX wants a DOCX back, with the same formatting, tracked changes, and comments, just without the names.
 
-So locations are chunk-local while detection runs, then promoted to source-global coordinates. For text, a source reference maps decoded ranges back to raw bytes, through XML escapes and down to the specific part inside the archive. When a redaction lands, only the bytes of the redacted spans change. Everything else in the file is left exactly as it was.
+So locations are chunk-local while detection runs, then promoted to source-global coordinates. For text, a source reference maps decoded ranges back to raw bytes, through XML escapes and down to the specific part inside the archive. When a redaction lands, only the redacted spans change, and everything else is preserved as faithfully as the format allows. For plain text, JSON, HTML, and CSV, untouched bytes are copied verbatim. Images and audio are re-encoded after the region or segment is redacted, and formats whose parsers discard details like attribute order come back equivalent rather than byte-identical. Elide makes that tradeoff explicit per format instead of quietly degrading everywhere.
 
 ## Cheap first, then escalate
 
@@ -71,7 +71,7 @@ Operators are implemented per modality:
 - **Audio:** silence or a beep over the time span.
 - **Tables:** dropping a row or a column.
 
-Each operator also declares how much it leaks: recoverable, partial, or irrecoverable. That makes reversibility explicit. Encryption and pseudonymization can be undone with the right key, and nothing else can. Which operator applies to which entity is a policy decision, not a code change, and the runtime ships policy templates for HIPAA, GDPR, PCI DSS, and CCPA.
+Each operator also declares how much it leaks: recoverable, partial, or irrecoverable. That makes reversibility explicit. Encryption and pseudonymization can be undone with the right key. Hashing is classed as recoverable too: a hash of a small or guessable value, like a phone number, can be reversed by trying every candidate. Which operator applies to which entity is a policy decision, not a code change, and the runtime ships policy templates for HIPAA, GDPR, PCI DSS, and CCPA.
 
 Every entity also carries an audit log of events: what recognized it, how it was reconciled, which operator was selected, and when it was applied. Each event is hash-linked to the previous ones, so you can verify afterwards that the log hasn't been tampered with. For compliance work, being able to show why something was or wasn't redacted matters as much as redacting it.
 

@@ -73,11 +73,13 @@ Tags can be plain strings, but the better option is an enum:
 ```rust
 #[derive(Debug, Clone, Copy, Tags)]
 enum Page {
+    Sitemap,
     Listing,
     Product,
 }
 
 let router = Router::new()
+    .route(Page::Sitemap, FollowSitemap::new(Page::Product))
     .route(Page::Listing, (
         FollowLinks::new(Page::Listing).select("a.next"),
         FollowLinks::new(Page::Product)
