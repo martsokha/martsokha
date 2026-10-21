@@ -1,0 +1,180 @@
+---
+title: "Write Handlers, Not Scrapers"
+author: "Oleh Martsokha"
+publishedAt: 2023-11-19T12:00:00-04:00
+description: "Most web scraping libraries give you an HTTP client and leave the rest to you: concurrency, retries, politeness, routing. Spire is a Rust crawling framework, influenced by Axum, where the infrastructure is built in: tag-based routing, typed extractors, a real frontier, and politeness by default."
+excerpt: "Why I built Spire, an Axum-inspired crawling framework for Rust where you write handlers and the framework takes care of retries, politeness, deduplication, and routing."
+category: "Spire"
+tags: ["Rust", "Architecture", "Scraping"]
+icon: "../../assets/posts/spire.svg"
+draft: false
+---
+
+Every scraper starts the same way: fetch a page, parse the HTML, extract some data. Simple enough. Then requirements grow. You need rate limiting. Retries. Concurrent fetching that doesn't hammer one host. Deduplication. Different handling for different page types. Browser rendering for JavaScript-heavy sites.
+
+At some point, the scraper becomes its own ad-hoc framework. The scraping logic disappears under layers of infrastructure code that you've written from scratch, again, for the third time this year.
+
+[Spire](https://github.com/spire-rs/spire) began as the crawling layer for a side project of mine. Once the infrastructure outgrew the scraping code it was meant to serve, it was clearly worth building properly, as a framework of its own, where the infrastructure is built in and the scraping logic stays clean.
+
+## The core idea
+
+The design started from a familiar shape. A scraper gets responses, looks at what kind of page each one is, and hands it to the right piece of code. That's not far from what a web server does with requests, and Rust already has a great answer for the server side.
+
+Spire is heavily influenced by [Axum](https://github.com/tokio-rs/axum). Axum lets you write a handler as a plain async function, declare what it needs as typed arguments, and leave parsing to the framework. Spire borrows that pattern, along with Axum's router, extractors, and middleware model, and applies it to crawling. If you've written an Axum service, a Spire crawler should feel familiar.
+
+A crawl has four moving parts:
+
+- The **frontier** holds the URLs still to visit and decides what counts as new.
+- The **backend** fetches pages, over plain HTTP or through a real browser.
+- The **router** picks a handler for each page.
+- **Datasets** store what the handlers extract, one per item type.
+
+The crawler ties them together. It pulls seeds from the frontier, fetches them concurrently, routes each response, and reports the outcome back. It stops once nothing is queued or in flight. You write handlers.
+
+## Handlers and extractors
+
+A Spire handler is an async function. Its arguments are extractors: the framework looks at what you ask for and hands it over.
+
+```rust
+async fn price(
+    uri: Uri,
+    Element(product): Element<Product>,
+) -> Result<()> {
+    tracing::info!("{uri}: {:?}", product.price);
+    Ok(())
+}
+```
+
+`Uri` is the page's address. `Element<Product>` parses the page into a struct. `Text`, `Json<T>`, and `Html` give you the body in other shapes, and `Data<T>` writes results into a dataset. You never touch an HTTP response directly, and the page is fetched once, no matter how many extractors read it.
+
+Datasets are where results end up, and handlers don't care which kind they write to. An in-memory dataset is handy for tests and small crawls. For real output, there are datasets that write JSON Lines or CSV as items arrive, and one backed by redb, an embedded database, which keeps results in the same file as the frontier, so one file holds the whole crawl and both survive a crash.
+
+Extraction itself can be declarative. Deriving `Select` turns CSS selectors into a struct:
+
+```rust
+#[derive(Debug, Select)]
+#[select("main.product")]
+struct Product {
+    #[select("h1")]
+    name: String,
+    #[select(".price")]
+    price: Option<f64>,
+}
+```
+
+A handler can also return an outcome instead of just succeeding or failing: retry this request later, pause every request with the same tag for a while, or stop the crawl. That puts decisions like "this site is rate-limiting us" next to the code that notices them.
+
+## Tag-based routing
+
+Different pages need different handling. A product listing page requires different extraction logic than a product detail page. In most scraping libraries, you handle this with conditionals in one big callback. In Spire, every request carries a tag, and the router directs it to the matching handler.
+
+Tags can be plain strings, but the better option is an enum:
+
+```rust
+#[derive(Debug, Clone, Copy, Tags)]
+enum Page {
+    Listing,
+    Product,
+}
+
+let router = Router::new()
+    .route(Page::Listing, (
+        FollowLinks::new(Page::Listing).select("a.next"),
+        FollowLinks::new(Page::Product)
+            .select("article.product a"),
+    ))
+    .route(Page::Product, Collect::<Product>::new())
+    .require::<Page>();
+```
+
+The compiler catches a misspelled tag, and `require` refuses to start the crawl if any variant has no handler. A missing route fails at startup, not an hour into a crawl.
+
+The listing route also shows two smaller ideas. A tuple of handlers runs them in turn on the same page, fetched once: here, one follows the next page of the listing and the other follows every product. And the common jobs come built in: `FollowLinks` queues the links matching a selector under a tag, and `Collect` extracts an item into its dataset. Anything else is an async function, and it mixes freely with the built-in handlers.
+
+Pages that arrive without a tag, like links found along the way, can be routed by path pattern such as `/products/*`, or fall through to a fallback handler.
+
+Cross-cutting behavior goes in middleware, which wraps the router and runs on every request. It can change the request, answer without fetching, look at the response before any handler runs, or change the outcome afterwards. Rotating user agents is one line. Retrying pages that come back with a captcha is a short async function:
+
+```rust
+async fn captcha<C: Client>(
+    cx: Context<C>,
+    next: Next<C>,
+) -> Result<Outcome> {
+    let response = cx.response().await?;
+    if response.headers().contains_key("x-captcha") {
+        let after = Some(Duration::from_secs(60));
+        return Ok(Outcome::Retry { after });
+    }
+    Ok(next.run(cx).await)
+}
+
+let router = router
+    .layer(middleware::from_fn(captcha))
+    .layer(SetHeader::rotate(USER_AGENT, user_agents));
+```
+
+## A frontier that behaves
+
+Most of what makes a scraper production-ready lives in the frontier, so Spire makes it a first-class part of the crawl. The frontier holds every request still waiting to be made, decides their order, and decides what happens when one fails.
+
+The order is a choice: FIFO crawls breadth first, LIFO crawls depth first, and a priority queue crawls the most important seeds first. On top of the queue, behaviors stack as facades, each wrapping the one before it:
+
+```rust
+let frontier = InMemFrontier::fifo()
+    .dedup()
+    .allow_hosts(["example.com"])
+    .filter(|seed| !seed.uri().path().ends_with(".pdf"))
+    .max_depth(5)
+    .retry(3)
+    .tag_backoff();
+
+let crawler = Crawler::new(HttpClient::default(), router)
+    .with_frontier(frontier)
+    .with_concurrency(16);
+```
+
+`dedup` skips pages that were already seen, by fingerprint rather than raw URL. The fingerprint uses a canonical form that lowercases the host, drops default ports and fragments, sorts the query, and strips tracking parameters like `utm_source`, so the same page linked five different ways is fetched once. The seen set lives in memory by default, or in a Bloom filter when a crawl gets too big for that. `allow_hosts` and `filter` keep the crawl where you want it, and `max_depth` bounds how far it wanders from the seeds.
+
+`retry` retries failures with exponential backoff and jitter, so requests that failed together aren't retried together. It only retries what might succeed next time: timeouts, connection errors, and `408`, `429`, and `5xx` responses. A `404` or a broken extractor isn't retried. `tag_backoff` pauses every request with the same tag when a server answers `429 Too Many Requests` or `503` with a `Retry-After` header, then tries again. Handlers can make the same calls themselves: retry this page, back off this tag, give up on it, or stop the crawl.
+
+Long crawls need to survive a crash. With redb, the frontier and the seen set live in one file on disk, and reopening that file resumes the crawl where it stopped. Budgets put a ceiling on the whole thing: a maximum number of requests, a time limit, and a timeout per request. When a crawl stops, for a budget, a handler, or Ctrl-C, nothing new starts, and the requests in flight get a grace period to finish.
+
+## Politeness
+
+A crawler that's fast but rude gets blocked, and it deserves to. Spire treats politeness as part of the framework, not something to bolt on later.
+
+Concurrency can be limited per host as well as overall. The delay between requests to the same host can be fixed, but a fixed delay is either too slow for a fast site or too fast for a slow one. An adaptive delay gives each host its own instead:
+
+```rust
+let delay = HostDelay::adaptive()
+    .with_target_concurrency(2)
+    .with_bounds(
+        Duration::from_millis(100),
+        Duration::from_secs(30),
+    );
+let robots = Robots::new("MyBot")
+    .with_sitemaps(Page::Sitemap);
+
+let crawler = Crawler::new(HttpClient::default(), router)
+    .with_host_concurrency(4)
+    .with_host_delay(delay)
+    .with_robots(robots);
+```
+
+After every response, a host's delay moves towards how fast that host actually answers. A host answering in 400 ms with a target of two requests in flight settles on 200 ms between requests. A failure never lowers the delay, and a `429`, `503`, or timeout doubles it.
+
+The [kit](https://github.com/spire-rs/kit) repository provides the parsers behind the rest: robotxt for robots.txt, following RFC 9309 with crawl-delay and wildcard matching, and sitemapo for sitemaps. Spire fetches robots.txt once per site before the first request, skips what it disallows for your user agent, and honors its crawl delay. A site whose robots.txt can't be reached is treated as off-limits until it can be, rather than as a free-for-all. robots.txt can even be fetched over plain HTTP while the pages themselves go through a browser.
+
+Sitemaps are often the politest way to find pages: the site tells you what exists, instead of you finding out by following every link. `FollowSitemap` reads XML and text sitemaps, gzipped or not, follows sitemap indexes, and queues every page it lists under a tag. With `with_sitemaps`, the robots.txt check also queues the sitemaps it lists, so a crawl can start from a bare domain and discover the rest from what the site publishes.
+
+## Swappable backends
+
+Not every site can be scraped over plain HTTP. JavaScript-rendered pages need a real browser. Spire treats the fetcher as a backend: reqwest for plain HTTP, or thirtyfour, which drives real browsers over WebDriver BiDi with a pool of sessions.
+
+Body extractors like `Html` work the same either way. With the browser backend, they read the page as currently rendered. A `View` extractor hands over the browser itself, for when you need to click "load more" before extracting. Backends compose, too: `Rotate` cycles through several of them, such as one HTTP client per proxy. The backend is a trait, so if none of these fit, you implement your own.
+
+## Where it stands
+
+Spire is on [crates.io](https://crates.io/crates/spire), with the API reference on [docs.rs](https://docs.rs/spire) and a guide in [the Spire Book](https://spire-rs.github.io/spire/), whose examples are compiled as tests. It's still evolving, and the API isn't stable yet. Criterion benchmarks cover the crawler's per-request overhead, the frontiers, routing, and parsing, so changes to the hot paths get measured rather than guessed at.
+
+The framework does what I set out to build: crawling pipelines where you write handlers, not infrastructure. Retries, politeness, deduplication, and routing are solved once, in the framework, instead of again in every scraper.

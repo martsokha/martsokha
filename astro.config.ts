@@ -21,7 +21,7 @@ export default defineConfig({
 				light: "github-light",
 				dark: "aurora-x",
 			},
-			wrap: true,
+			wrap: false,
 			transformers: [],
 		},
 	},
