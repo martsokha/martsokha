@@ -40,7 +40,7 @@ const postsByYearDesc = Object.entries(postsByYear).sort(([a], [b]) => Number(b)
             >
               <div class="flex items-baseline gap-4 mb-1">
                 {post.data.icon && (
-                  <Image src={post.data.icon} alt="" width={20} height={20} class="size-5 rounded self-center shrink-0" />
+                  <Image src={post.data.icon} alt="" width={24} height={24} class="size-6 rounded-md self-center shrink-0" />
                 )}
                 <time class="text-sm tracking-normal text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">
                   {new Date(post.data.publishedAt).toLocaleDateString('en-US', {
